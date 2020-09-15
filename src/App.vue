@@ -1,32 +1,39 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div id="nav" v-if="showRouter" >
+      <router-link to="/Todo">To do list</router-link> |
+      <router-link to="/DAW" @click.native="DAW">DAW</router-link> |
+      <router-link to="/APITest">API Test</router-link>  <!--router-link to="/about"是選單連結標籤-->
     </div>
-    <router-view/>
+    <router-view/>    <!--會把首面檔案引用到這裡來-->
+    
   </div>
+    
 </template>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script>
+export default {
+  name:'app',
+  data(){
+    return{
+      showRouter:true
+    }
+  },
+  methods:{
+    DAW(){
+      this.showRouter=!this.showRouter
+    }
+  }
 }
+</script>
 
+<style scoped>
+body {
+  font-family: sans-serif;
+  margin: 0;
+}
 #nav {
-  padding: 30px;
+  margin: 0 auto;
+  padding: 0 20%;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>

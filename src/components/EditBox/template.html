@@ -1,0 +1,90 @@
+<div :class="[EditWindows===2 ? 'MidiEditor':'EditBox']">
+  <div class="frame">
+    <button @click="$emit('edithandler')">X</button>
+    <p>Electric piano</p>
+  </div>
+  <div class="adjust">
+    <div v-if="EditWindows===0" class="Ins">  
+      <p>Instrument</p>
+      <select name="ins" id="ins">
+        <option value="Piano">Piano</option>
+        <option value="Guitar">Guitar</option>
+      </select>    
+      <p>MIDI Device</p>
+      <select name="device" id="device">
+        <option value="no">No MIDI Device</option>
+      </select>
+    </div>
+
+    <div v-if="EditWindows===1" class="Fx">
+      <p>Preset</p>
+      <select name="preset" id="preset">
+        <option value="None">None</option>
+      </select>
+    </div>
+
+    <div v-if="EditWindows===2" class="Midi">
+      <button><i class="material-icons">select_all</i></button>
+      <button><i class="material-icons">create</i></button>
+    </div>
+  </div>
+
+  
+  <div class="content">
+    <div v-if="EditWindows===0" class="Ins">  
+      
+      
+    </div>
+    <div v-if="EditWindows===1" class="Fx">
+      <h1>OSC</h1>
+      <label for="ocillatorType">Ocillator Type</label><br>      
+      <input type="radio" name="sine" value="sine" v-model="trackData.osc">sine<br>
+      <input type="radio" name="triangle" value="triangle" v-model="trackData.osc">triangle<br>
+      <input type="radio" name="square" value="square" v-model="trackData.osc">square<br>
+      <input type="radio" name="sawtooth" value="sawtooth" v-model="trackData.osc">sawtooth<br>
+      <label for="InstrumentType">Instrument Type</label><br>
+      <input type="radio" name="Synth" value="Synth" v-model="trackData.synthType">synth<br>
+      <input type="radio" name="AMSynth" value="AMSynth" v-model="trackData.synthType">Am synth<br>
+      <input type="radio" name="FMSynth" value="FMSynth" v-model="trackData.synthType">FM synth<br>
+      <input type="radio" name="MetalSynth" value="MetalSynth" v-model="trackData.synthType">Metal synth<br>
+      <input type="radio" name="MembraneSynth" value="MembraneSynth" v-model="trackData.synthType">Membrane synth<br>
+      <input type="radio" name="MonoSynth" value="MonoSynth" v-model="trackData.synthType">Mono synth<br>      
+      <label for="detune">detune :</label>
+      <input type="number" v-model="trackData.detune">
+      <input type="range" min="-200" max="200" v-model="trackData.detune">
+      <label for="volume">volume :</label>
+      <input type="number" v-model="trackData.vol">
+      <hr>
+
+      <h1>FX</h1>
+      <label for="attack">Attack:{{ trackData.env.attack/10 }}</label>
+      <input type="range" v-model="trackData.env.attack" min="0" max="20"><br>
+      <label for="decay">Decay:{{ trackData.env.decay/10 }}</label>
+      <input type="range" v-model="trackData.env.decay" min="0" max="20"><br>
+      <label for="sustain">Sustain:{{ trackData.env.sustain/10 }}</label>
+      <input type="range" v-model="trackData.env.sustain" min="0" max="10"><br>
+      <label for="release">Release:{{ trackData.env.release/10 }}</label>
+      <input type="range" v-model="trackData.env.release" min="0" max="50"><br>
+      <hr>
+      <h1>Filter</h1>
+      <label for="filter">Filter</label>
+      <input type="checkbox" >
+    </div>
+
+    <div v-if="EditWindows===2" class="Midi hidden">
+      <div class="timeline">
+        <ul>
+          <li v-for="i in 16" :key="i">{{i}}</li>
+        </ul>
+      </div>
+      
+      <div class="lead">
+        <ul v-for="(row, i) in Track[selectedTrack].Data" :key="`Track[selectedTrack].Data_${i}`">
+          <li v-for="j in 16" :key="`Track[selectedTrack].Data_${i}_${j-1}`" 
+            :class="[Track[selectedTrack].Data[i][j-1] ? 'after': 'before']" @click="editKey(Track[selectedTrack].Data[i],j-1)"></li>
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</div>
