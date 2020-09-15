@@ -52,6 +52,7 @@
 
       <div v-if="isEdit">
         <EditBox
+          :index="index" 
           :EditWindows="EditWindows"
           :isEdit="isEdit"
           :Track="Track"
@@ -94,9 +95,8 @@ export default {
   data() {
     return {
       Tone,
-      hi: "hello",
       BPM: 120,
-      time: "00:00.0",
+      time: new Tone.Time("4n").toSeconds(),
       trackNum: 0,
       Track: [],
       EditWindows: "",
@@ -104,16 +104,18 @@ export default {
       selectedTrack: -1,
       isPlaying: false,
       lead: [],
-      index: -1,
+      index: -1,  //時間軸
       saved: [],
+      //const time = Tone.Time("4n").toSeconds();
 
     };
   },
 
   methods: {
     setTransport() {
-      Tone.Transport.bpm.value = 120;
+      Tone.Transport.bpm.value = 120; //每分鐘120拍
       Tone.Transport.scheduleRepeat(time => {
+        
         this.index = ++this.index % 16;
         const i = this.index;
         for (let j = 0; j < this.Track.length; j++) {
@@ -162,7 +164,7 @@ export default {
           volume: 2
         }).toMaster(),
         //Filter
-        filter: new Tone.Filter(1500, "highpass"), //.toDestination()
+        //filter: new Tone.Filter(1500, "highpass"), //.toDestination()
       });
       //this.Track[this.selectTrack].poly.
       this.selectTrack(this.trackNum);

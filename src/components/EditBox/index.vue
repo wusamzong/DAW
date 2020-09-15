@@ -36,6 +36,10 @@ export default {
     selectedTrack: {
       type: Number,
       required: true
+    },
+    index: {
+      type: Number,
+      required: true
     }
   },
   watch: {
@@ -152,30 +156,25 @@ export default {
   color: aliceblue;
   font-size: 24px;
 }
+
 .Midi .timeline {
-  display: inline-block;
-  background: #38383a;
-  border-radius: 5px;
-  height: 25px;
-  width: 2000px;
-}
-.timeline ul {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0px;
-  margin-top: 7px;
-  margin-left: 5px;
-  padding: 0px;
+  background: #38383a;
+  border-radius: 5px;
+  height: 10px;
+  width: 1080px;
 }
-.timeline li {
-  width: 20px;
-  list-style-type: none;
-  color: white;
+.timeline .show{
+  content: ' ';
+  background: #666;
+  width: calc(1080px/16);
+  height: 10px;
+  border: 1px solid rgb(207, 252, 255);
 }
-
+.active{
+  background:#e93fff !important;
+}
 .lead {
   display: grid;
   height: 250px;

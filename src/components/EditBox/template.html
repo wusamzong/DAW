@@ -73,13 +73,16 @@
 
     <div v-if="EditWindows===2" class="Midi hidden">
       <div class="timeline">
-        <ul>
-          <li v-for="i in 16" :key="i">{{i}}</li>
-        </ul>
+        <!--<ul class="meter">
+          <li v-for="i in 16" :key="i" >{{i}}</li>
+        </ul>-->
+        
+        <div class="show" v-for="i in 16" :class="{'active':index === i-1}"></div>
+        
       </div>
       
       <div class="lead">
-        <ul v-for="(row, i) in Track[selectedTrack].Data" :key="`Track[selectedTrack].Data_${i}`">
+        <ul v-for="(row, i) in Track[selectedTrack].Data" :key="`Track[selectedTrack].Data_${i}`" :class="{'active':index === i-1}">
           <li v-for="j in 16" :key="`Track[selectedTrack].Data_${i}_${j-1}`" 
             :class="[Track[selectedTrack].Data[i][j-1] ? 'after': 'before']" @click="editKey(Track[selectedTrack].Data[i],j-1)"></li>
         </ul>
