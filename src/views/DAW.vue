@@ -185,7 +185,7 @@ export default {
         case 'MonoSynth':
           return Tone.MonoSynth;
         default:
-          console.log('wrong synth Type');
+          console.log('wrong synth Type.');
       }
     },
     changeTrack(Track,synthType) {
