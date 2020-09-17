@@ -82,7 +82,7 @@
       </div>
       
       <div class="lead">
-        <ul v-for="(row, i) in Track[selectedTrack].Data" :key="`Track[selectedTrack].Data_${i}`" :class="{'active':index === i-1}">
+        <ul v-for="(row, i) in Track[selectedTrack].Data" :key="`Track[selectedTrack].Data_${i}`">
           <li v-for="j in 16" :key="`Track[selectedTrack].Data_${i}_${j-1}`" 
             :class="[Track[selectedTrack].Data[i][j-1] ? 'after': 'before']" @click="editKey(Track[selectedTrack].Data[i],j-1)"></li>
         </ul>

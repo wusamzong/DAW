@@ -24,6 +24,11 @@ Vue.use(VueRouter)
       path:'/ThreeEX',
       name:'ThreeEX',
       component:()=>import('../views/ThreeEX')
+    },
+    {
+      path:'/Dragging',
+      name:'Dragging',
+      component:()=>import('../views/Dragging')
     }
 
 ]
