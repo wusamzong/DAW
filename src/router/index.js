@@ -19,6 +19,11 @@ Vue.use(VueRouter)
       path:'/APITest',
       name:'APITest',
       component:()=>import('../views/APITest')
+    },
+    {
+      path:'/ThreeEX',
+      name:'ThreeEX',
+      component:()=>import('../views/ThreeEX')
     }
 
 ]

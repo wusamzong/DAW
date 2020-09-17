@@ -6,19 +6,29 @@
 export default {
   data(){
     return{
-      mute: false,
-      solo: true,
-      test: 'test'
+
     }
+  },
+  props: {
+    boolean: {
+      type: Object,
+      required: true
+    },
   },
   
   methods:{
     muteHandler(){
-      this.mute= !this.mute
+      this.$emit("setMute");
     },
     soloHandler(){
       this.solo= !this.solo
+    },
+    showboolean(){
+     
     }
+  },
+  mounted(){
+    
   }
 }
 </script>

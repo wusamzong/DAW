@@ -10,6 +10,7 @@
           <li>Settings</li>
           <li>Help</li>
         </ul>
+        <button @click="muteHandler(Track[0])">mute</button>
         <p>Title</p>
       </div>
 
@@ -30,8 +31,10 @@
           <Track
             v-for="num in Track"
             :key="num.ID"
+            :boolean="num.boolean"
+            @setMute="muteHandler(num)"
             @click.native="selectTrack(num.ID)"
-            :class="[num.isSelect? 'selectTrack': 'notSelect']"
+            :class="[num.boolean.isSelect? 'selectTrack': 'notSelect']"
           />
         </div>
 
@@ -45,7 +48,7 @@
             v-for="num in Track"
             :key="num.ID"
             @click.native="selectTrack(num.ID)"
-            :class="{selectTrackEdit : num.isSelect}"
+            :class="{selectTrackEdit : num.boolean.isSelect}"
           />
         </div>
       </div>
@@ -75,6 +78,7 @@
 <script rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css'/>
 
 <script>
+import * as Tone from 'tone';
 import Track from "../components/Track/index.vue";
 import Head2 from "../components/Head2/index.vue";
 import TrackEdit from "../components/TrackEdit/index.vue";
@@ -146,7 +150,12 @@ export default {
       this.Track.push({
         ID: this.trackNum,
         Time: "00:00:00",
-        isSelect: false,
+        boolean:{
+          isSelect:false,
+          isMute: false,        
+          isSolo: false  
+        },
+        //isSelect: false,
         //Data
         Data: Array.from({ length: 7 }, this.getEmptyArray),
         //PolySynth
@@ -205,7 +214,36 @@ export default {
         },
         volume: 2
       }).toMaster();
-      console.log(Track.poly.get());
+      
+    },
+    adjustTrackHandler(v) {
+      var TrackPoly = this.Track[this.selectedTrack].poly;
+      //console.log(this.Track[this.selectedTrack].synthType);
+      //console.log(v)
+      if (this.Track[this.selectedTrack].synthType != v.synthType) {
+        
+        this.changeTrack(this.Track[this.selectedTrack], v.synthType);
+      } else {
+        TrackPoly.set({         
+          envelope: {
+            attack: v.env.attack / 10,
+            decay: v.env.decay / 10,
+            sustain: v.env.sustain / 10,
+            release: v.env.release / 10
+          },          
+          oscillator: {
+            detune: parseInt(v.detune),
+            type: v.osc,        
+          },
+          volume: parseInt(v.vol)
+        });
+      }   
+    },
+    muteHandler(Track){
+      Track.poly.set({
+        volume: -50
+      })
+      console.log(Track.poly.get());      
     },
     getEmptyArray(length = 16) {
       return Array.from({ length }, () => 0);
@@ -237,9 +275,9 @@ export default {
     selectTrack(num) {
       //判斷現在選擇的音軌是哪一個
       this.Track.forEach(item => {
-        item.isSelect = false;
+        item.boolean.isSelect = false;
       });
-      this.Track[num].isSelect = !this.Track[num].isSelect;
+      this.Track[num].boolean.isSelect = !this.Track[num].boolean.isSelect;
       this.selectedTrack = num;
     },
     sequencer() {
@@ -266,31 +304,7 @@ export default {
       else this.$set(arr, i, 0);
     },
 
-    adjustTrackHandler(v) {
-      var TrackPoly = this.Track[this.selectedTrack].poly;
-      //console.log(this.Track[this.selectedTrack].synthType);
-      //console.log(v)
-      if (this.Track[this.selectedTrack].synthType != v.synthType) {
-        
-        this.changeTrack(this.Track[this.selectedTrack], v.synthType);
-      } else {
-        TrackPoly.set({         
-          envelope: {
-            attack: v.env.attack / 10,
-            decay: v.env.decay / 10,
-            sustain: v.env.sustain / 10,
-            release: v.env.release / 10
-          },          
-          oscillator: {
-            detune: parseInt(v.detune),
-            type: v.osc,        
-          },
-          volume: parseInt(v.vol)
-        });
-        console.log(TrackPoly.get());
-      }      
-      
-    },
+    
     setFilter() {}
   },
   watch: {},
