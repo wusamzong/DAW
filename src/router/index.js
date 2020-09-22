@@ -29,6 +29,11 @@ Vue.use(VueRouter)
       path:'/Dragging',
       name:'Dragging',
       component:()=>import('../views/Dragging')
+    },
+    {
+      path:'/shapes',
+      name:'shapes',
+      component:()=>import('../views/shapes')
     }
 
 ]
