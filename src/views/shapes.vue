@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 //import { NURBSCurve } from 'three/examples/jsm/curves/NURBSCurve.js';
-import { NURBSSurface } from 'three/examples/jsm/curves/NURBSSurface.js';
+import { NURBSSurface } from "three/examples/jsm/curves/NURBSSurface.js";
 
 export default {
   data() {
@@ -71,6 +71,8 @@ export default {
 
       this.loadText();
 
+      this.Pianokey();
+
       //this.nurbsCurve();
 
       this.stats = new Stats();
@@ -90,17 +92,21 @@ export default {
       floor.receiveShadow = true;
       this.scene.add(floor);
     },
-    addShape(shape, /* extrudeSettings,*/ color, x, y, z, rx, ry, rz, s) {
-      var geometry = new THREE.ShapeBufferGeometry(shape);
-
-      var mesh = new THREE.Mesh(
-        geometry,
-        new THREE.MeshPhongMaterial({ color: color, side: THREE.DoubleSide })
-      );
-      mesh.position.set(x, y, z);
-      mesh.rotation.set(rx, ry, rz);
-      mesh.scale.set(s, s, s);
-      this.group.add(mesh);
+    addShape() {
+      var sqLength = 80;
+      var squareShape = new THREE.Shape()
+        .moveTo(0, 0)
+        .lineTo(0, sqLength)
+        .lineTo(sqLength, sqLength)
+        .lineTo(sqLength, 0)
+        .lineTo(0, 0);
+      var geometry = new THREE.ShapeBufferGeometry(squareShape);
+      var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set( 0, 0, - 600);
+			mesh.rotation.set( 0, 0,0 );
+			mesh.scale.set( 1, 1, 1 );
+      this.scene.add(mesh);
     },
     addLineShape(shape, color, x, y, z, rx, ry, rz, s) {
       shape.autoClose = true;
@@ -146,6 +152,22 @@ export default {
           1
         );
       }
+    },
+
+    Squre() {
+      var sqLength = 80;
+
+      var squareShape = new THREE.Shape()
+        .moveTo(0, 0)
+        .lineTo(0, sqLength)
+        .lineTo(sqLength, sqLength)
+        .lineTo(sqLength, 0)
+        .lineTo(0, 0);
+
+      return squareShape;
+    },
+    Pianokey() {
+      this.addShape();
     },
     nurbsCurve() {
       // NURBS surface
@@ -196,7 +218,6 @@ export default {
         20
       );
       var material = new THREE.MeshLambertMaterial({
-        
         side: THREE.DoubleSide
       });
       var object = new THREE.Mesh(geometry, material);
@@ -204,91 +225,82 @@ export default {
       object.scale.multiplyScalar(1);
       this.group.add(object);
     },
-    loadText(){
+    loadText() {
       let me = this;
       var loader = new THREE.FontLoader();
-				loader.load( './Microsoft JhengHei_Regular.json', function ( font ) {
+      loader.load("./Microsoft JhengHei_Regular.json", function(font) {
+        var xMid, text;
 
-					var xMid, text;
+        var color = 0x006699;
 
-					var color = 0x006699;
+        var matDark = new THREE.LineBasicMaterial({
+          color: color,
+          side: THREE.DoubleSide
+        });
 
-					var matDark = new THREE.LineBasicMaterial( {
-						color: color,
-						side: THREE.DoubleSide
-					} );
-          
-					var matLite = new THREE.MeshBasicMaterial( {   //一種平面的物質 不理會light
-						color: color,
-						transparent: true,
-						opacity: 0.4,
-            side: THREE.DoubleSide 
-            //side
-            //https://threejs.org/docs/#api/en/materials/MeshDepthMaterial 
-            //面的呈現─表面、內側或是雙面
-					} );
+        var matLite = new THREE.MeshBasicMaterial({
+          //一種平面的物質 不理會light
+          color: color,
+          transparent: true,
+          opacity: 0.4,
+          side: THREE.DoubleSide
+          //side
+          //https://threejs.org/docs/#api/en/materials/MeshDepthMaterial
+          //面的呈現─表面、內側或是雙面
+        });
 
-					var message = "   Three.js\nSimple text.";
+        var message = "   Three.js\nSimple text.";
 
-					var shapes = font.generateShapes( message, 100 ); //font.generateShapes(文字內容, 文字大小(※預設為100))
+        var shapes = font.generateShapes(message, 100); //font.generateShapes(文字內容, 文字大小(※預設為100))
 
-					var geometry = new THREE.ShapeBufferGeometry( shapes );
-          console.log(geometry);
-					geometry.computeBoundingBox(); //讓geometry可以去計算
-          
-					xMid = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
-          //geometry.boundingBox.max 和 geometry.boundingBox.min分別為最大最小值
-          //xMid取得是中間值
-          geometry.translate( xMid, 0, -500 );  //調整位置
-          console.log(geometry);
-          
+        var geometry = new THREE.ShapeBufferGeometry(shapes);
 
-					// make shape ( N.B. edge view not visible )
+        geometry.computeBoundingBox(); //讓geometry可以去計算
 
-					text = new THREE.Mesh( geometry, matLite );
-					text.position.z = - 150;
-					me.scene.add( text );
+        xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+        //geometry.boundingBox.max 和 geometry.boundingBox.min分別為最大最小值
+        //xMid取得是中間值
+        geometry.translate(xMid, 0, -500); //調整位置
 
-					// make line shape ( N.B. edge view remains visible )
-          
-					var holeShapes = [];
+        // make shape ( N.B. edge view not visible )
 
-					for ( let i = 0; i < shapes.length; i ++ ) {
+        text = new THREE.Mesh(geometry, matLite);
+        text.position.z = -150;
+        me.scene.add(text);
 
-						let shape = shapes[ i ];  //把字串中的字體依序放入shape
+        // make line shape ( N.B. edge view remains visible )
 
-            if ( shape.holes && shape.holes.length > 0 ) {  
-              //如果這個圖案有洞 洞的尺寸大於一 則把這個洞找出來 以便等等的渲染
-							for ( let j = 0; j < shape.holes.length; j ++ ) {
-								var hole = shape.holes[ j ];
-								holeShapes.push( hole );
-							}
+        var holeShapes = [];
 
-						}
+        for (let i = 0; i < shapes.length; i++) {
+          let shape = shapes[i]; //把字串中的字體依序放入shape
 
-					}
+          if (shape.holes && shape.holes.length > 0) {
+            //如果這個圖案有洞 洞的尺寸大於一 則把這個洞找出來 以便等等的渲染
+            for (let j = 0; j < shape.holes.length; j++) {
+              var hole = shape.holes[j];
+              holeShapes.push(hole);
+            }
+          }
+        }
 
-					shapes.push.apply( shapes, holeShapes );
-          console.log(shapes);
-					var lineText = new THREE.Object3D();
+        shapes.push.apply(shapes, holeShapes);
+        var lineText = new THREE.Object3D();
 
-					for ( let i = 0; i < shapes.length; i ++ ) {
+        for (let i = 0; i < shapes.length; i++) {
+          let shape = shapes[i];
 
-						let shape = shapes[ i ];
+          var points = shape.getPoints();
+          let geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-						var points = shape.getPoints();
-						let geometry = new THREE.BufferGeometry().setFromPoints( points );
+          geometry.translate(xMid, 0, -700);
 
-						geometry.translate( xMid, 0, -700 );
+          var lineMesh = new THREE.Line(geometry, matDark);
+          lineText.add(lineMesh);
+        }
 
-						var lineMesh = new THREE.Line( geometry, matDark );
-						lineText.add( lineMesh );
-
-					}
-
-					me.scene.add( lineText );
-          
-				} ); //end load function
+        me.scene.add(lineText);
+      }); //end load function
     },
     setRenderer() {
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
