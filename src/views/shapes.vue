@@ -92,20 +92,26 @@ export default {
       floor.receiveShadow = true;
       this.scene.add(floor);
     },
-    addShape() {
-      var sqLength = 80;
+    addsquare(Length,x,y,z,rx,ry,rz,s) {
+      var sqLength = Length;
       var squareShape = new THREE.Shape()
         .moveTo(0, 0)
-        .lineTo(0, sqLength)
-        .lineTo(sqLength, sqLength)
+        .lineTo(0, sqLength/2)
+        .lineTo(sqLength, sqLength/2)
         .lineTo(sqLength, 0)
         .lineTo(0, 0);
+      //var extrudeSettings = { depth: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+      //var geometry = new THREE.ExtrudeBufferGeometry( squareShape, extrudeSettings );
       var geometry = new THREE.ShapeBufferGeometry(squareShape);
-      var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      var material = new THREE.MeshBasicMaterial({           
+          color: 0xFFD966,
+          transparent: true,
+          opacity: 0.7,
+          side: THREE.DoubleSide });
       var mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set( 0, 0, - 600);
-			mesh.rotation.set( 0, 0,0 );
-			mesh.scale.set( 1, 1, 1 );
+      mesh.position.set( x, y, z);
+			mesh.rotation.set(rx, ry, rz);
+			mesh.scale.set( s, s, s);
       this.scene.add(mesh);
     },
     addLineShape(shape, color, x, y, z, rx, ry, rz, s) {
@@ -153,21 +159,27 @@ export default {
         );
       }
     },
-
-    Squre() {
-      var sqLength = 80;
-
-      var squareShape = new THREE.Shape()
-        .moveTo(0, 0)
-        .lineTo(0, sqLength)
-        .lineTo(sqLength, sqLength)
-        .lineTo(sqLength, 0)
-        .lineTo(0, 0);
-
-      return squareShape;
-    },
     Pianokey() {
-      this.addShape();
+      var R = 40;
+      var Length = 3.14*R/66;
+      var angle = 0;
+      for(let i=2; i>0; i-= 1/64){
+        
+        
+        let x=R*Math.cos(3.14*angle)
+        let z=R*Math.sin(3.14*angle)
+        //this.addsquare(Length,x,0,z, 0, i*3.14,0 ,1);
+        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14/2,0 ,1);
+        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14,0 ,1);
+        this.addsquare(Length,x,0,z, 0, i*3.14+3.14*3/2,0 ,1);
+        angle+=1/64
+        
+        //console.log(parseInt(x),parseInt(z));
+        //this.addsquare(Length,x,0,z, 0,-i*3.14,0 ,1)
+        
+        
+      }
+      //this.addsquare(Length,x,y,z,rx,ry,rz,s);
     },
     nurbsCurve() {
       // NURBS surface
