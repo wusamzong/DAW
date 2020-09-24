@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 //import { NURBSCurve } from 'three/examples/jsm/curves/NURBSCurve.js';
-import { NURBSSurface } from "three/examples/jsm/curves/NURBSSurface.js";
+//import { NURBSSurface } from "three/examples/jsm/curves/NURBSSurface.js";
 
 export default {
   data() {
@@ -73,169 +73,88 @@ export default {
 
       this.Pianokey();
 
+      this.EllipseCurve();
+
       //this.nurbsCurve();
 
       this.stats = new Stats();
       this.container.appendChild(this.stats.dom);
 
       this.container.style.touchAction = "none";
+      window.addEventListener("resize", this.onWindowResize, false);
     },
-    addPlane() {
-      var geometry = new THREE.PlaneBufferGeometry(4, 4);
-      var material = new THREE.MeshStandardMaterial({
-        color: 0xeeeeee,
-        roughness: 1.0,
-        metalness: 0.0
-      });
-      var floor = new THREE.Mesh(geometry, material);
-      floor.rotation.x = -Math.PI / 2;
-      floor.receiveShadow = true;
-      this.scene.add(floor);
+
+    EllipseCurve(R, y) {
+      var curve = new THREE.EllipseCurve(
+        0,
+        0, // ax, aY
+        R,
+        R, // xRadius, yRadius
+        0,
+        2 * Math.PI, // aStartAngle, aEndAngle
+        false, // aClockwise
+        0 // aRotation
+      );
+      var points = curve.getPoints(50);
+      var geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      var material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+      // Create the final object to add to the scene
+      var ellipse = new THREE.Line(geometry, material);
+
+      ellipse.position.set(0, y, 0);
+      ellipse.rotation.set(Math.PI / 2, 0, 0);
+
+      this.scene.add(ellipse);
     },
-    addsquare(Length,x,y,z,rx,ry,rz,s) {
+    Sphere() {
+      for (var i = -15 / 32; i < 1 / 2; i += 1 / 32) {
+        let Rx = Math.cos(3.14 * i) * 300;
+        let Ry = Math.sin(3.14 * i) * 100;
+        this.EllipseCurve(Rx, Ry);
+      }
+    },
+    Pianokey() {
+      var R = 40;
+      var Length = (3.14 * R) / 66;
+      var angle = 0;
+      for (let i = 2; i > 0; i -= 1 / 64) {
+        let x = R * Math.cos(3.14 * angle);
+        let z = R * Math.sin(3.14 * angle);
+        //this.addsquare(Length,x,0,z, 0, i*3.14,0 ,1);
+        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14/2,0 ,1);
+        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14,0 ,1);
+        this.addsquare(Length, x, 0, z, 0, i * 3.14 + (3.14 * 3) / 2, 0, 1);
+        angle += 1 / 64;
+
+        //console.log(parseInt(x),parseInt(z));
+        //this.addsquare(Length,x,0,z, 0,-i*3.14,0 ,1)
+      }
+      //this.addsquare(Length,x,y,z,rx,ry,rz,s);
+    },
+    addsquare(Length, x, y, z, rx, ry, rz, s) {
       var sqLength = Length;
       var squareShape = new THREE.Shape()
         .moveTo(0, 0)
-        .lineTo(0, sqLength/2)
-        .lineTo(sqLength, sqLength/2)
+        .lineTo(0, sqLength / 2)
+        .lineTo(sqLength, sqLength / 2)
         .lineTo(sqLength, 0)
         .lineTo(0, 0);
       //var extrudeSettings = { depth: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
       //var geometry = new THREE.ExtrudeBufferGeometry( squareShape, extrudeSettings );
       var geometry = new THREE.ShapeBufferGeometry(squareShape);
-      var material = new THREE.MeshBasicMaterial({           
-          color: 0xFFD966,
-          transparent: true,
-          opacity: 0.7,
-          side: THREE.DoubleSide });
-      var mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set( x, y, z);
-			mesh.rotation.set(rx, ry, rz);
-			mesh.scale.set( s, s, s);
-      this.scene.add(mesh);
-    },
-    addLineShape(shape, color, x, y, z, rx, ry, rz, s) {
-      shape.autoClose = true;
-      var points = shape.getPoints();
-      //var spacedPoints = shape.getSpacedPoints( 50 );
-
-      var geometryPoints = new THREE.BufferGeometry().setFromPoints(points);
-      //var geometrySpacedPoints = new THREE.BufferGeometry().setFromPoints( spacedPoints );
-
-      var line = new THREE.Line(
-        geometryPoints,
-        new THREE.LineBasicMaterial({ color: color })
-      );
-      line.position.set(x, y, z);
-      line.rotation.set(rx, ry, rz);
-      line.scale.set(s, s, s);
-      this.group.add(line);
-    },
-    Circle(R) {
-      var circleRadius = R;
-      var circleShape = new THREE.Shape()
-        .moveTo(0, circleRadius)
-        .quadraticCurveTo(circleRadius, circleRadius, circleRadius, 0)
-        .quadraticCurveTo(circleRadius, -circleRadius, 0, -circleRadius)
-        .quadraticCurveTo(-circleRadius, -circleRadius, -circleRadius, 0)
-        .quadraticCurveTo(-circleRadius, circleRadius, 0, circleRadius);
-      return circleShape;
-    },
-
-    Sphere() {
-      for (var i = -15 / 32; i < 1 / 2; i += 1 / 32) {
-        let Rx = Math.cos(3.14 * i) * 300;
-        let Ry = Math.sin(3.14 * i) * 100;
-        this.addLineShape(
-          this.Circle(Rx),
-          0x00f000,
-          0,
-          Ry,
-          0,
-          -Math.PI / 2,
-          0,
-          0,
-          1
-        );
-      }
-    },
-    Pianokey() {
-      var R = 40;
-      var Length = 3.14*R/66;
-      var angle = 0;
-      for(let i=2; i>0; i-= 1/64){
-        
-        
-        let x=R*Math.cos(3.14*angle)
-        let z=R*Math.sin(3.14*angle)
-        //this.addsquare(Length,x,0,z, 0, i*3.14,0 ,1);
-        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14/2,0 ,1);
-        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14,0 ,1);
-        this.addsquare(Length,x,0,z, 0, i*3.14+3.14*3/2,0 ,1);
-        angle+=1/64
-        
-        //console.log(parseInt(x),parseInt(z));
-        //this.addsquare(Length,x,0,z, 0,-i*3.14,0 ,1)
-        
-        
-      }
-      //this.addsquare(Length,x,y,z,rx,ry,rz,s);
-    },
-    nurbsCurve() {
-      // NURBS surface
-
-      var nsControlPoints = [
-        [
-          new THREE.Vector4(-200, -200, 100, 1),
-          new THREE.Vector4(-200, -100, -200, 1),
-          new THREE.Vector4(-200, 100, 250, 1),
-          new THREE.Vector4(-200, 200, -100, 1)
-        ],
-        [
-          new THREE.Vector4(0, -200, 0, 1),
-          new THREE.Vector4(0, -100, -100, 5),
-          new THREE.Vector4(0, 100, 150, 5),
-          new THREE.Vector4(0, 200, 0, 1)
-        ],
-        [
-          new THREE.Vector4(200, -200, -100, 1),
-          new THREE.Vector4(200, -100, 200, 1),
-          new THREE.Vector4(200, 100, -250, 1),
-          new THREE.Vector4(200, 200, 100, 1)
-        ]
-      ];
-      var degree1 = 2;
-      var degree2 = 3;
-      var knots1 = [0, 0, 0, 1, 1, 1];
-      var knots2 = [0, 0, 0, 0, 1, 1, 1, 1];
-      var nurbsSurface = new NURBSSurface(
-        degree1,
-        degree2,
-        knots1,
-        knots2,
-        nsControlPoints
-      );
-      /*
-      var map = new THREE.TextureLoader().load("https://github.com/mrdoob/three.js/tree/dev/examples/textures/uv_grid_opengl.jpg");
-      map.wrapS = map.wrapT = THREE.RepeatWrapping;
-      map.anisotropy = 16;
-      */
-      function getSurfacePoint(u, v, target) {
-        return nurbsSurface.getPoint(u, v, target);
-      }
-
-      var geometry = new THREE.ParametricBufferGeometry(
-        getSurfacePoint,
-        20,
-        20
-      );
-      var material = new THREE.MeshLambertMaterial({
+      var material = new THREE.MeshBasicMaterial({
+        color: 0xffd966,
+        transparent: true,
+        opacity: 0.7,
         side: THREE.DoubleSide
       });
-      var object = new THREE.Mesh(geometry, material);
-      object.position.set(700, 100, 0);
-      object.scale.multiplyScalar(1);
-      this.group.add(object);
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(x, y, z);
+      mesh.rotation.set(rx, ry, rz);
+      mesh.scale.set(s, s, s);
+      this.scene.add(mesh);
     },
     loadText() {
       let me = this;
@@ -313,6 +232,12 @@ export default {
 
         me.scene.add(lineText);
       }); //end load function
+    },
+    onWindowResize() {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
     },
     setRenderer() {
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
