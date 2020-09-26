@@ -88,10 +88,6 @@ export default {
       this.container.appendChild(this.stats.dom);
 
       this.container.style.touchAction = "none";
-<<<<<<< HEAD
-      window.addEventListener("resize", this.onWindowResize, false);
-    },
-=======
       document.addEventListener("mousemove", this.onDocumentMouseMove, false);
     },
     addPlane() {
@@ -129,12 +125,7 @@ export default {
       mesh.scale.set(s, s, s);
       this.scene.add(mesh);
     },
-    addLineShape(shape, color, x, y, z, rx, ry, rz, s) {
-      shape.autoClose = true;
-      var points = shape.getPoints();
-      //var spacedPoints = shape.getSpacedPoints( 50 );
->>>>>>> c2e7583092e2d1fa44ad3e7512ee7855f1d90cb7
-
+    
     EllipseCurve(R, y) {
       var curve = new THREE.EllipseCurve(
         0,
@@ -161,104 +152,38 @@ export default {
     },
     Sphere() {
       for (var i = -15 / 32; i < 1 / 2; i += 1 / 32) {
-        let Rx = Math.cos(3.14 * i) * 300;
-        let Ry = Math.sin(3.14 * i) * 100;
+        let Rx = Math.cos(3.14 * i) * 31;
+        let Ry = Math.sin(3.14 * i) * 31;
         this.EllipseCurve(Rx, Ry);
       }
     },
     Pianokey() {
-      var R = 40;
-      var Length = (3.14 * R) / 66;
+      var R = 30;
+      var Length = (3.14 * R) / 70;
       var angle = 0;
-      for (let i = 2; i > 0; i -= 1 / 64) {
-        let x = R * Math.cos(3.14 * angle);
-        let z = R * Math.sin(3.14 * angle);
-        //this.addsquare(Length,x,0,z, 0, i*3.14,0 ,1);
-        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14/2,0 ,1);
-        //this.addsquare(Length,x,0,z, 0, i*3.14+3.14,0 ,1);
-        this.addsquare(Length, x, 0, z, 0, i * 3.14 + (3.14 * 3) / 2, 0, 1);
-        angle += 1 / 64;
+      for(let j = -3; j < 4 ;j++){
+          
+        R= 30* Math.cos(Math.PI*1/32*j) ;
+        Length =(Math.PI * R)/65;
+        console.log(Math.cos(Math.PI*1/32*j));
+        let y = R/35*j;   
+        console.log(R);
+        console.log(y); 
+        for (let i = 2; i > 0; i -= 1 / 64) {    
 
-        //console.log(parseInt(x),parseInt(z));
-        //this.addsquare(Length,x,0,z, 0,-i*3.14,0 ,1)
+          let x = R * Math.cos(Math.PI * angle);
+          let z = R * Math.sin(Math.PI * angle);
+          //this.addsquare(Length,x,0,z, 0, i*3.14,0 ,1);
+          //this.addsquare(Length,x,0,z, 0, i*3.14+3.14/2,0 ,1);
+          //this.addsquare(Length,x,0,z, 0, i*3.14+3.14,0 ,1);
+          this.addsquare(Length, x, y, z, 0, i * Math.PI + (Math.PI * 3) / 2, 0, 1);
+          angle += 1 / 64;
+
+          //console.log(parseInt(x),parseInt(z));
+          //this.addsquare(Length,x,0,z, 0,-i*3.14,0 ,1)
+        }
       }
       //this.addsquare(Length,x,y,z,rx,ry,rz,s);
-    },
-<<<<<<< HEAD
-    addsquare(Length, x, y, z, rx, ry, rz, s) {
-      var sqLength = Length;
-      var squareShape = new THREE.Shape()
-        .moveTo(0, 0)
-        .lineTo(0, sqLength / 2)
-        .lineTo(sqLength, sqLength / 2)
-        .lineTo(sqLength, 0)
-        .lineTo(0, 0);
-      //var extrudeSettings = { depth: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
-      //var geometry = new THREE.ExtrudeBufferGeometry( squareShape, extrudeSettings );
-      var geometry = new THREE.ShapeBufferGeometry(squareShape);
-      var material = new THREE.MeshBasicMaterial({
-        color: 0xffd966,
-        transparent: true,
-        opacity: 0.7,
-        side: THREE.DoubleSide
-=======
-    nurbsCurve() {
-      // NURBS surface
-
-      var nsControlPoints = [
-        [
-          new THREE.Vector4(-200, -200, 100, 1),
-          new THREE.Vector4(-200, -100, -200, 1),
-          new THREE.Vector4(-200, 100, 250, 1),
-          new THREE.Vector4(-200, 200, -100, 1),
-        ],
-        [
-          new THREE.Vector4(0, -200, 0, 1),
-          new THREE.Vector4(0, -100, -100, 5),
-          new THREE.Vector4(0, 100, 150, 5),
-          new THREE.Vector4(0, 200, 0, 1),
-        ],
-        [
-          new THREE.Vector4(200, -200, -100, 1),
-          new THREE.Vector4(200, -100, 200, 1),
-          new THREE.Vector4(200, 100, -250, 1),
-          new THREE.Vector4(200, 200, 100, 1),
-        ],
-      ];
-      var degree1 = 2;
-      var degree2 = 3;
-      var knots1 = [0, 0, 0, 1, 1, 1];
-      var knots2 = [0, 0, 0, 0, 1, 1, 1, 1];
-      var nurbsSurface = new NURBSSurface(
-        degree1,
-        degree2,
-        knots1,
-        knots2,
-        nsControlPoints
-      );
-      /*
-      var map = new THREE.TextureLoader().load("https://github.com/mrdoob/three.js/tree/dev/examples/textures/uv_grid_opengl.jpg");
-      map.wrapS = map.wrapT = THREE.RepeatWrapping;
-      map.anisotropy = 16;
-      */
-      function getSurfacePoint(u, v, target) {
-        return nurbsSurface.getPoint(u, v, target);
-      }
-
-      var geometry = new THREE.ParametricBufferGeometry(
-        getSurfacePoint,
-        20,
-        20
-      );
-      var material = new THREE.MeshLambertMaterial({
-        side: THREE.DoubleSide,
->>>>>>> c2e7583092e2d1fa44ad3e7512ee7855f1d90cb7
-      });
-      var mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(x, y, z);
-      mesh.rotation.set(rx, ry, rz);
-      mesh.scale.set(s, s, s);
-      this.scene.add(mesh);
     },
     loadText() {
       let me = this;
@@ -337,19 +262,18 @@ export default {
         me.scene.add(lineText);
       }); //end load function
     },
-<<<<<<< HEAD
     onWindowResize() {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
 
       this.renderer.setSize(window.innerWidth, window.innerHeight);
-=======
+    },
     onDocumentMouseMove(event) {
       event.preventDefault();
 
       this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
->>>>>>> c2e7583092e2d1fa44ad3e7512ee7855f1d90cb7
+      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1-0.05;
+      
     },
     setRenderer() {
       this.renderer = new THREE.WebGLRenderer({ antialias: true }); //antialias 平滑化
@@ -363,7 +287,7 @@ export default {
       this.stats.update();
     },
     fcrender() {
-      this.group.rotation.y += (3 - this.group.rotation.y) * 0.05;
+      //this.group.rotation.y += (3 - this.group.rotation.y) * 0.05;
 
       this.raycaster.setFromCamera(this.mouse, this.camera);
 
@@ -373,14 +297,14 @@ export default {
         //判斷現在有沒有取得到物件
         if (this.INTERSECTED != intersects[0].object) {
           //如果當前選擇的物體跟剛剛選擇的物體不一樣，則進行下一步
-          if (this.INTERSECTED && this.INTERSECTED.position.z != -150)
-            //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
+          if (this.INTERSECTED && this.INTERSECTED.position.z != -150) //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
             this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
 
           this.INTERSECTED = intersects[0].object; //取得新的物件
           if (this.INTERSECTED.position.z != -150) {
             this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
             this.INTERSECTED.material.color.setHex(0xff0000);
+            console.log(this.mouse);
             this.INTERSECTED.material.transparent = true;
             this.INTERSECTED.material.opacity = 0.7;
           }
