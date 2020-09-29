@@ -55,33 +55,16 @@ export default {
   },
   methods: {
     init() {
-      
-      this.container = document.createElement("div");
-      document.body.appendChild(this.container);
-
-      this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0x2B0083);
-
-      this.camera = new THREE.PerspectiveCamera(
-        50,
-        window.innerWidth / window.innerHeight,
-        1,
-        1000
-      );
-      this.camera.position.set(0, 0, 0); //(x,y,z)
-
-      this.scene.add(this.camera);
-
-      this.controls = new OrbitControls(this.camera, this.container);
-      this.controls.target.set(0, 0, -1);
-      this.controls.update();
+      this.initContainer();
+      this.initScene();
+      this.initCamera();
+      this.initController();
 
       this.raycaster = new THREE.Raycaster();
 
       this.mouse = new THREE.Vector2();
 
       this.Sphere();
-
       this.setRenderer();     
 
 
@@ -93,6 +76,24 @@ export default {
       document.addEventListener("mousemove", this.onDocumentMouseMove, false);
 
 
+    },
+    initContainer(){
+      this.container = document.createElement('div');
+      document.body.appendChild(this.container);
+    },
+    initScene(){
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color(0x2B0083)
+    },
+    initCamera(){
+      this.camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1,1000)
+      this.camera.position.set(0,0,0);
+      this.scene.add(this.camera);
+    },
+    initController(){
+      this.controls = new OrbitControls(this.camera, this.container);
+      this.controls.target.set(0,0,-1);
+      this.controls.update();
     },
     addsquare(Length, x, y, z, rx, ry, rz, s, opacity) {
       var sqLength = Length;

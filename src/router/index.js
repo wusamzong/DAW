@@ -34,6 +34,11 @@ Vue.use(VueRouter)
       path:'/shapes',
       name:'shapes',
       component:()=>import('../views/shapes')
+    },
+    {
+      path:'/lightOut',
+      name:'lightOut',
+      component:()=>import('../views/lightOut')
     }
 
 ]

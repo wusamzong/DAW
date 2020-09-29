@@ -6,7 +6,8 @@
       <router-link to="/APITest">API Test</router-link> |
       <router-link to="/ThreeEX">ThreeEX</router-link> |
       <router-link to="/Dragging">Dragging</router-link>|
-      <router-link to="/shapes">shapes</router-link>
+      <router-link to="/shapes">shapes</router-link>|
+      <router-link to="/lightOut">lightOut</router-link>
     </div>
     <router-view/>    <!--會把首面檔案引用到這裡來-->
     
