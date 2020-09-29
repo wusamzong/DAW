@@ -17,7 +17,7 @@
     </div>
   </div>
 </template>
-<script src="./js/GUI.vue"></script>
+
 <script>
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -32,8 +32,6 @@ export default {
     var group;
     var controls;
     var mouse, INTERSECTED;
-    var effectController;
-    var gui;
     //var extrudeSettings;
     return {
       container,
@@ -51,8 +49,7 @@ export default {
       cameraPosition: [],
       notMoved: true,
       TrackPositionY: 0,
-      effectController,
-      gui
+      barNum: 0,
       //extrudeSettings
     };
   },
@@ -83,7 +80,7 @@ export default {
 
       this.mouse = new THREE.Vector2();
 
-      //this.Sphere();
+      this.Sphere();
 
       this.setRenderer();     
 
@@ -158,19 +155,18 @@ export default {
       var R = 30;
       var Length;
       var angle = 0;
-      
+      this.barNum = 72;
       for (let j = -3; j < 4; j++) {
         R = 30 * Math.cos(((Math.PI * 1) / 32) * j);
-        Length = (Math.PI * R) / 60;
-        
+        Length = (Math.PI * R) / 60;        
         let y = (R / 35) * j;
 
         angle = -1;
         var Gradient=0;
         for (let i = 2; i > 2/3; i -= 1 / 54) {
+          
           let x = R * Math.cos(Math.PI * angle);
           let z = R * Math.sin(Math.PI * angle);        
-          
           this.TrackUI.push(
               this.addsquare(
               Length,
@@ -187,17 +183,18 @@ export default {
           this.TrackUI[this.Tracknum].add(
             this.addsquare( Length, x, y, z, 0, i * Math.PI + (Math.PI * 3) / 2, 0, 1, Math.sin(Math.PI * Gradient)*0.8+0.1)
           );*/
-          Gradient += 1 / 72;
-          angle += 1 / 54;
           
+          Gradient += 1 / this.barNum;
+          angle += 1 / 54;
         }
       }
       
       this.TrackUI.forEach(element => {
-        if(element.type != 'Group')
+        if(element.type != 'Group'){
           this.scene.add(element);
+        }
       });
-      console.log(this.TrackUI);
+      
       //this.scene.add(this.TrackUI[this.Tracknum]);
     },
     addTrack() {
@@ -249,7 +246,8 @@ export default {
           if (this.INTERSECTED && this.INTERSECTED.position.z != -150)
             //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
             this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
-          this.INTERSECTED = intersects[0].object; //取得新的物件          
+          this.INTERSECTED = intersects[0].object; //取得新的物件   
+          console.log(this.INTERSECTED.id);       
           this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
           this.INTERSECTED.material.color.setHex(0xff0000);
 
