@@ -1,43 +1,46 @@
-addPlane() {
-  var geometry = new THREE.PlaneBufferGeometry(4, 4);
-  var material = new THREE.MeshStandardMaterial({
-    color: 0xeeeeee,
-    roughness: 1.0,
-    metalness: 0.0
-  });
-  var floor = new THREE.Mesh(geometry, material);
-  floor.rotation.x = -Math.PI / 2;
-  floor.receiveShadow = true;
-  this.scene.add(floor);
-},
+<script>
+export default {
+  methods: {
+    addPlane() {
+      var geometry = new THREE.PlaneBufferGeometry(4, 4);
+      var material = new THREE.MeshStandardMaterial({
+        color: 0xeeeeee,
+        roughness: 1.0,
+        metalness: 0.0
+      });
+      var floor = new THREE.Mesh(geometry, material);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      this.scene.add(floor);
+    },
 
-addLineShape(shape, color, x, y, z, rx, ry, rz, s) {
-  shape.autoClose = true;
-  var points = shape.getPoints();
-  //var spacedPoints = shape.getSpacedPoints( 50 );
+    addLineShape(shape, color, x, y, z, rx, ry, rz, s) {
+      shape.autoClose = true;
+      var points = shape.getPoints();
+      //var spacedPoints = shape.getSpacedPoints( 50 );
 
-  var geometryPoints = new THREE.BufferGeometry().setFromPoints(points);
-  //var geometrySpacedPoints = new THREE.BufferGeometry().setFromPoints( spacedPoints );
+      var geometryPoints = new THREE.BufferGeometry().setFromPoints(points);
+      //var geometrySpacedPoints = new THREE.BufferGeometry().setFromPoints( spacedPoints );
 
-  var line = new THREE.Line(
-    geometryPoints,
-    new THREE.LineBasicMaterial({ color: color })
-  );
-  line.position.set(x, y, z);
-  line.rotation.set(rx, ry, rz);
-  line.scale.set(s, s, s);
-  this.group.add(line);
-},
-Circle(R) {
-  var circleRadius = R;
-  var circleShape = new THREE.Shape()
-    .moveTo(0, circleRadius)
-    .quadraticCurveTo(circleRadius, circleRadius, circleRadius, 0)
-    .quadraticCurveTo(circleRadius, -circleRadius, 0, -circleRadius)
-    .quadraticCurveTo(-circleRadius, -circleRadius, -circleRadius, 0)
-    .quadraticCurveTo(-circleRadius, circleRadius, 0, circleRadius);
-  return circleShape;
-},
+      var line = new THREE.Line(
+        geometryPoints,
+        new THREE.LineBasicMaterial({ color: color })
+      );
+      line.position.set(x, y, z);
+      line.rotation.set(rx, ry, rz);
+      line.scale.set(s, s, s);
+      this.group.add(line);
+    },
+    Circle(R) {
+      var circleRadius = R;
+      var circleShape = new THREE.Shape()
+        .moveTo(0, circleRadius)
+        .quadraticCurveTo(circleRadius, circleRadius, circleRadius, 0)
+        .quadraticCurveTo(circleRadius, -circleRadius, 0, -circleRadius)
+        .quadraticCurveTo(-circleRadius, -circleRadius, -circleRadius, 0)
+        .quadraticCurveTo(-circleRadius, circleRadius, 0, circleRadius);
+      return circleShape;
+    },
     nurbsCurve() {
       // NURBS surface
 
@@ -93,7 +96,8 @@ Circle(R) {
       object.position.set(700, 100, 0);
       object.scale.multiplyScalar(1);
       this.group.add(object);
-    }, loadText() {
+    },
+    loadText() {
       let me = this;
       var loader = new THREE.FontLoader();
       loader.load("./Microsoft JhengHei_Regular.json", function(font) {
@@ -169,4 +173,39 @@ Circle(R) {
 
         me.scene.add(lineText);
       }); //end load function
+
     },
+        EllipseCurve(R, y) {
+      var curve = new THREE.EllipseCurve(
+        0,
+        0, // ax, aY
+        R,
+        R, // xRadius, yRadius
+        0,
+        2 * Math.PI, // aStartAngle, aEndAngle
+        false, // aClockwise
+        0 // aRotation
+      );
+      var points = curve.getPoints(50);
+      var geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      var material = new THREE.LineBasicMaterial({ color: 0xFFD966});
+
+      // Create the final object to add to the scene
+      var ellipse = new THREE.Line(geometry, material);
+
+      ellipse.position.set(0, y, 0);
+      ellipse.rotation.set(Math.PI / 2, 0, 0);
+
+      this.scene.add(ellipse);
+    },
+    Sphere() {
+      for (var i = -15 / 32; i < 1 / 2; i += 1 / 32) {
+        let Rx = Math.cos(3.14 * i) * 31;
+        let Ry = Math.sin(3.14 * i) * 31;
+        this.EllipseCurve(Rx, Ry);
+      }
+    },
+  }
+};
+</script>>

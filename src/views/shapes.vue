@@ -44,24 +44,37 @@ export default {
       raycaster,
       mouse,
       INTERSECTED,
-      TrackUI: [],
+      TrackUI: [],  //用於push Mesh
       Tracknum: 0,
       cameraPosition: [],
       notMoved: true,
       TrackPositionY: 0,
       barNum: 0,
+      TrackData: []  //用於操作Track
       //extrudeSettings
     };
   },
   methods: {
     init() {
-      
+      this.initContainer();
+      this.initScene();
+      this.initCamera();
+      this.initController();
+      //this.Sphere();
+      this.setRenderer();     
+    },
+    initContainer(){
       this.container = document.createElement("div");
       document.body.appendChild(this.container);
-
+      this.stats = new Stats();
+      this.container.appendChild(this.stats.dom);
+      this.container.style.touchAction = "none";
+    },
+    initScene(){
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x2B0083);
-
+    },
+    initCamera(){
       this.camera = new THREE.PerspectiveCamera(
         50,
         window.innerWidth / window.innerHeight,
@@ -69,30 +82,15 @@ export default {
         1000
       );
       this.camera.position.set(0, 0, 0); //(x,y,z)
-
       this.scene.add(this.camera);
-
+    },
+    initController(){
       this.controls = new OrbitControls(this.camera, this.container);
       this.controls.target.set(0, 0, -1);
       this.controls.update();
-
       this.raycaster = new THREE.Raycaster();
-
       this.mouse = new THREE.Vector2();
-
-      this.Sphere();
-
-      this.setRenderer();     
-
-
-      this.stats = new Stats();
-      this.container.appendChild(this.stats.dom);
-
-      this.container.style.touchAction = "none";
-
       document.addEventListener("mousemove", this.onDocumentMouseMove, false);
-
-
     },
     addsquare(Length, x, y, z, rx, ry, rz, s, opacity) {
       var sqLength = Length;
@@ -118,38 +116,6 @@ export default {
       mesh.scale.set(s, s, s);
       return mesh;
       //this.scene.add(mesh);
-    },
-
-    EllipseCurve(R, y) {
-      var curve = new THREE.EllipseCurve(
-        0,
-        0, // ax, aY
-        R,
-        R, // xRadius, yRadius
-        0,
-        2 * Math.PI, // aStartAngle, aEndAngle
-        false, // aClockwise
-        0 // aRotation
-      );
-      var points = curve.getPoints(50);
-      var geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-      var material = new THREE.LineBasicMaterial({ color: 0xFFD966});
-
-      // Create the final object to add to the scene
-      var ellipse = new THREE.Line(geometry, material);
-
-      ellipse.position.set(0, y, 0);
-      ellipse.rotation.set(Math.PI / 2, 0, 0);
-
-      this.scene.add(ellipse);
-    },
-    Sphere() {
-      for (var i = -15 / 32; i < 1 / 2; i += 1 / 32) {
-        let Rx = Math.cos(3.14 * i) * 31;
-        let Ry = Math.sin(3.14 * i) * 31;
-        this.EllipseCurve(Rx, Ry);
-      }
     },
     Pianokey() {
       var R = 30;
@@ -228,14 +194,13 @@ export default {
     },
     animate() {
       requestAnimationFrame(this.animate);
-      this.fcrender();
+      this.select();
+      this.moveCamera();
+      this.renderer.render(this.scene, this.camera);
       this.stats.update();
     },
-    fcrender() {
-      //this.group.rotation.y += (3 - this.group.rotation.y) * 0.05;
-
+    select() {
       this.raycaster.setFromCamera(this.mouse, this.camera);
-
       var intersects = this.raycaster.intersectObjects(this.scene.children);
       //intersects 是持續偵測的物體  INTERSECTED是將偵測到的物件儲存起來，且改變顏色
       if (intersects.length > 0) {
@@ -246,11 +211,9 @@ export default {
           if (this.INTERSECTED && this.INTERSECTED.position.z != -150)
             //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
             this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
-          this.INTERSECTED = intersects[0].object; //取得新的物件   
-          console.log(this.INTERSECTED.id);       
+          this.INTERSECTED = intersects[0].object; //取得新的物件       
           this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
           this.INTERSECTED.material.color.setHex(0xff0000);
-
         }
       } else {
         //如果當前沒有取得物件的話，那就把剛剛蒐集的物件的顏色改回去
@@ -260,11 +223,9 @@ export default {
 
         this.INTERSECTED = null;
       }
-
-      /*if (this.cameraPositionY > 0) {
-        this.cameraPositionY--;
-        this.camera.position.set(0, this.camera.position.y - 1, 0); //(x,y,z)
-      }*/
+       
+    },
+    moveCamera(){
       if (this.TrackPositionY>1){
         this.TrackPositionY--;
         
@@ -275,9 +236,6 @@ export default {
         this.Pianokey();
         this.TrackPositionY--;
       }
-      
-
-      this.renderer.render(this.scene, this.camera);
     }
   },
   mounted() {
