@@ -32,6 +32,7 @@ export default {
     var group;
     var controls;
     var mouse, INTERSECTED;
+    
     //var extrudeSettings;
     return {
       container,
@@ -44,13 +45,14 @@ export default {
       raycaster,
       mouse,
       INTERSECTED,
-      TrackUI: [],  //用於push Mesh
+      TrackGroup: [],  //用於push Mesh
       Tracknum: 0,
       cameraPosition: [],
       notMoved: true,
-      TrackPositionY: 0,
+      TrackPositionY: -1,
       barNum: 0,
-      TrackData: []  //用於操作Track
+      TrackData: [],  //用於操作Track    
+      MeshID_to_TrackDataID: new Map(),  //每個Track的第一個id  
       //extrudeSettings
     };
   },
@@ -92,7 +94,7 @@ export default {
       this.mouse = new THREE.Vector2();
       document.addEventListener("mousemove", this.onDocumentMouseMove, false);
     },
-    addsquare(Length, x, y, z, rx, ry, rz, s, opacity) {
+    addsquare(Length, x, y, z, rx, ry, rz, s, opacity, id) {
       var sqLength = Length;
       var squareShape = new THREE.Shape()
         .moveTo(0, 0)
@@ -114,6 +116,7 @@ export default {
       mesh.position.set(x, y, z);
       mesh.rotation.set(rx, ry, rz);
       mesh.scale.set(s, s, s);
+      this.MeshID_to_TrackDataID.set(mesh.id, id)
       return mesh;
       //this.scene.add(mesh);
     },
@@ -121,6 +124,12 @@ export default {
       var R = 30;
       var Length;
       var angle = 0;
+      
+      var id=1;
+
+      this.TrackGroup[this.Tracknum] = new THREE.Group();
+      this.TrackData[this.Tracknum] = [];
+      console.log(this.Tracknum);
       this.barNum = 72;
       for (let j = -3; j < 4; j++) {
         R = 30 * Math.cos(((Math.PI * 1) / 32) * j);
@@ -129,49 +138,29 @@ export default {
 
         angle = -1;
         var Gradient=0;
-        for (let i = 2; i > 2/3; i -= 1 / 54) {
-          
+        for (let i = 2; i > 2/3; i -= 1 / 54) {          
           let x = R * Math.cos(Math.PI * angle);
-          let z = R * Math.sin(Math.PI * angle);        
-          this.TrackUI.push(
-              this.addsquare(
-              Length,
-              x,
-              y,
-              z,
-              0,
-              i * Math.PI + (Math.PI * 3) / 2,
-              0,
-              1,
-              Math.sin(Math.PI * Gradient)*0.8+0.1
-            ))
-          /*
-          this.TrackUI[this.Tracknum].add(
-            this.addsquare( Length, x, y, z, 0, i * Math.PI + (Math.PI * 3) / 2, 0, 1, Math.sin(Math.PI * Gradient)*0.8+0.1)
-          );*/
+          let z = R * Math.sin(Math.PI * angle);
           
+          this.TrackData[this.Tracknum].push(false);
+          this.TrackGroup[this.Tracknum].add(
+            this.addsquare( Length, x, y, z, 0, i * Math.PI + (Math.PI * 3) / 2, 0, 1, Math.sin(Math.PI * Gradient)*0.8+0.1, id*(this.Tracknum+1))
+          );
+          id++;
           Gradient += 1 / this.barNum;
           angle += 1 / 54;
         }
       }
-      
-      this.TrackUI.forEach(element => {
-        if(element.type != 'Group'){
-          this.scene.add(element);
-        }
-      });
-      
-      //this.scene.add(this.TrackUI[this.Tracknum]);
+      this.scene.add(this.TrackGroup[this.Tracknum]);
+      this.Tracknum++;  
     },
     addTrack() {
-      if (this.Tracknum < 3) {
-        
-        if(this.Tracknum!=0)
-          this.TrackPositionY = 8;
-        else
-          this.Pianokey(); 
-        
-        this.Tracknum++;
+      if (this.Tracknum < 3) {        
+        if(this.Tracknum!=0){          
+          this.TrackPositionY = 8
+        }else{
+          this.Pianokey();
+        }
       }
     },
     onWindowResize() {
@@ -185,6 +174,10 @@ export default {
 
       this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1 + 0.03;
+    },
+    onDocumentMouseUp(event){
+      event.preventDefault();
+      this.isClick = true;
     },
     setRenderer() {
       this.renderer = new THREE.WebGLRenderer({ antialias: true }); //antialias 平滑化
@@ -201,40 +194,58 @@ export default {
     },
     select() {
       this.raycaster.setFromCamera(this.mouse, this.camera);
-      var intersects = this.raycaster.intersectObjects(this.scene.children);
-      //intersects 是持續偵測的物體  INTERSECTED是將偵測到的物件儲存起來，且改變顏色
-      if (intersects.length > 0) {
-        //判斷現在有沒有取得到物件
-        if (this.INTERSECTED != intersects[0].object) {
-          
-          //如果當前選擇的物體跟剛剛選擇的物體不一樣，則進行下一步
-          if (this.INTERSECTED && this.INTERSECTED.position.z != -150)
-            //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
-            this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
-          this.INTERSECTED = intersects[0].object; //取得新的物件       
-          this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
-          this.INTERSECTED.material.color.setHex(0xff0000);
+      var intersects=[];
+      /*this.TrackGroup.forEach(element => {
+        intersects.push(this.raycaster.intersectObjects(element,true))
+      });*/
+      intersects = this.raycaster.intersectObjects(this.TrackGroup,true)
+      
+      if(intersects.length>0){ //intersects 是持續偵測的物體  INTERSECTED是將偵測到的物件儲存起來，且改變顏色
+        if(intersects != this.INTERSECTED){  //如果當前選擇的物體跟剛剛選擇的物體不一樣，則進行下一步
+          if(this.INTERSECTED){ //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
+          this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
+          }
+          this.INTERSECTED = intersects[0].object;
+          this.INTERSECTED.currentHex=this.INTERSECTED.material.color.getHex();
+          this.INTERSECTED.material.color.setHex(0xff377e);
+          this.eventListenerControl(false); //監聽是否要讓Orbit controller 作用
+          this.onClick(this.INTERSECTED); //偵測是否有點擊
         }
-      } else {
-        //如果當前沒有取得物件的話，那就把剛剛蒐集的物件的顏色改回去
-        if (this.INTERSECTED) {
+      }else{
+        if(this.INTERSECTED){  //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
           this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
         }
-
-        this.INTERSECTED = null;
+        this.eventListenerControl(true);
+        this.INTERSECTED=null;
       }
-       
+    },
+    eventListenerControl(boolean){
+      if(boolean){
+        this.controls.enabled=true;
+      }else{
+        this.controls.saveState();
+        this.controls.enabled = false;
+        document.addEventListener('mouseup', this.onDocumentMouseUp);
+        this.controls.reset();
+      }
+    },
+    onClick(key){
+      if(this.isClick === true){
+        var culID = this.MeshID_to_TrackDataID.get(key.id)
+        
+        console.log(culID);
+        this.isClick =false;
+      }
     },
     moveCamera(){
-      if (this.TrackPositionY>1){
+      if (this.TrackPositionY>0){
         this.TrackPositionY--;
-        
-        this.TrackUI.forEach(element => {
+        this.TrackGroup.forEach(element => {
           element.position.set(element.position.x, element.position.y + 1,element.position.z);
         });
-      }else if(this.TrackPositionY ===1){
+      }else if(this.TrackPositionY ===0){
         this.Pianokey();
-        this.TrackPositionY--;
+        this.TrackPositionY=-1;
       }
     }
   },
