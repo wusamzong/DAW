@@ -3,6 +3,8 @@
     <div id="info">
       <div class="header">
         <button @click="addTrack">add Track</button>
+        <button @click="showCameraPosition">Show Camera Position</button>
+        <button @click="cameraIsMoving=!cameraIsMoving">change cameraIsMoving status</button>
         <div class="step">
           <button>undo</button>
           <button>redo</button>
@@ -22,6 +24,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
+//import { Camera } from 'three';
 //import { NURBSCurve } from 'three/examples/jsm/curves/NURBSCurve.js';
 //import { NURBSSurface } from "three/examples/jsm/curves/NURBSSurface.js";
 
@@ -50,11 +53,13 @@ export default {
       //cameraPosition: [],
       cameraVector: 0,
       cameraTrack: 0,
+      cameraIsMoving:false,
       notMoved: true,
       TrackPositionY: -1,
       barNum: 0,
       TrackData: [], //用於操作Track
       id: 0,
+      orbitChanging: false,
       //MeshID_to_TrackDataID:[],  //每個Track的第一個Mesh的Mesh ID
       focusTrack: -1,
       tempAnimate: [],
@@ -88,6 +93,7 @@ export default {
         1000
       );
       this.camera.position.set(0, 0, 0); //(x,y,z)
+      this.camera.rotation.set(0,0,0);
       this.scene.add(this.camera);
     },
     initController() {
@@ -97,6 +103,8 @@ export default {
       this.raycaster = new THREE.Raycaster();
       this.mouse = new THREE.Vector2();
       document.addEventListener("mousemove", this.onDocumentMouseMove, false);
+      this.controls.addEventListener("change", this.onControlsChange);
+      this.controls.addEventListener("end", this.onControlsEnd);
     },
     addsquare(Length, x, y, z, rx, ry, rz, s, opacity, id) {
       var sqLength = Length;
@@ -170,17 +178,20 @@ export default {
       ];
 
       this.scene.add(this.TrackGroup[this.Tracknum]);
-      console.log(this.TrackGroup[this.Tracknum].cameraPosition);
+      //console.log(this.TrackGroup[this.Tracknum].cameraPosition);
       
       
       this.cameraVector = this.TrackGroup[this.Tracknum].cameraPosition;
+
+      
       this.moveCameraAnimation(this.Tracknum); //把攝影機對像最新創建的音軌
 
       this.Tracknum++;
     },
     addTrack() {
-      if (this.Tracknum < 3) {
+      if (this.Tracknum < 3) {        
         this.Pianokey();
+        
       }
     },
     onWindowResize() {
@@ -191,11 +202,10 @@ export default {
     },
     onDocumentMouseMove(event) {
       event.preventDefault();
-
       this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1 + 0.03;
     },
-    onDocumentMouseUp(event) {
+    onDocumentClick(event) {
       event.preventDefault();
       this.isClick = true;
     },
@@ -207,20 +217,19 @@ export default {
     },
     animate() {
       requestAnimationFrame(this.animate);
-      this.select();
-      //this.moveTrackGroup();
-      //this.moveCamera();
+      if(!this.cameraIsMoving || !this.orbitChanging){
+        this.select();
+      }
       this.renderer.render(this.scene, this.camera);
       this.stats.update();
     },
     select() {
-      this.raycaster.setFromCamera(this.mouse, this.camera);
-      var intersects = [];
-      /*this.TrackGroup.forEach(element => {
-        intersects.push(this.raycaster.intersectObjects(element,true))
-      });*/
-      intersects = this.raycaster.intersectObjects(this.TrackGroup, true);
+      
+      this.raycaster.setFromCamera(this.mouse, this.camera);    
 
+      var intersects = [];
+
+      intersects = this.raycaster.intersectObjects(this.TrackGroup, true);
       if (intersects.length > 0) {
         //intersects 是持續偵測的物體  INTERSECTED是將偵測到的物件儲存起來，且改變顏色
         if (intersects != this.INTERSECTED) {
@@ -232,94 +241,66 @@ export default {
           this.INTERSECTED = intersects[0].object;
           this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
           this.INTERSECTED.material.color.setHex(0xff377e);
-          this.eventListenerControl(false); //監聽是否要讓Orbit controller 作用
-          this.onClick(this.INTERSECTED); //偵測是否有點擊
+          
+          document.addEventListener('click',this.onClick);//偵測是否有點擊
         }
       } else {
         if (this.INTERSECTED) {
           //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
           this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
         }
-        this.eventListenerControl(true);
         this.INTERSECTED = null;
       }
     },
-    eventListenerControl(boolean) {
-      if (boolean) {
-        this.controls.enabled = true;
-      } else {
-        this.controls.saveState();
-        this.controls.enabled = false;
-        document.addEventListener("mouseup", this.onDocumentMouseUp);
-        this.controls.reset();
-      }
+    onControlsChange(){
+      this.orbitChanging = true;
     },
-    onClick(key) {
-      if (this.isClick === true) {
-        //console.log(key.index);
-        this.focusTrack = key.index[0];
-        /*console.log(this.focusTrack);
-        console.log(this.TrackGroup[this.focusTrack]);*/
-        this.cameraVector = this.TrackGroup[this.focusTrack].cameraPosition;
-        
-        this.moveCameraAnimation(this.focusTrack);
-        this.isClick = false;
-      }
+    onControlsEnd(){
+      this.orbitChanging = false;
     },
-
+    onClick() {
+      let key = this.INTERSECTED
+      console.log(key.index[0],key.index[1]);
+      this.focusTrack = key.index[0];
+      key.material.color.setHex(0xffff00);
+      this.cameraVector = this.TrackGroup[this.focusTrack].cameraPosition;
+      this.moveCameraAnimation(this.focusTrack);
+    },
+    showCameraPosition(){
+      console.log('Camera Position(x,y,z):' );
+      console.log(this.camera.position.x,this.camera.position.y,this.camera.position.z);
+    },
     moveCameraAnimation(goalTrack) {
       let position = this.camera.position
-      let temp = [];
-      if(this.focusTrack === this.cameraTrack){ //當關注的Track等於camera關注的track時 就不跑這個function
+      if(this.cameraTrack === goalTrack){ //當關注的Track等於camera關注的track時 就不跑這個function
+        this.controls.enabled = true;
         return;
       }
-      if(
-        this.cameraVector[0] != position.x ||
-        this.cameraVector[1] != position.y ||
-        this.cameraVector[2] != position.z){
-          if(position.x<this.cameraVector[0]){
-            temp.push(position.x+1);
-          }else if(position.x>this.cameraVector[0]) {
-            temp.push(position.x-1);
-          }else{
-            temp.push(position.x)
-          }
-          if(position.y<this.cameraVector[1]){
-            temp.push(position.y+1);
-          }else if(position.y>this.cameraVector[1]) {
-            temp.push(position.y-1);
-          }else{
-            temp.push(position.y)
-          }
-          if(position.z<this.cameraVector[2]){
-            temp.push(position.z+1);
-          }else if(position.z>this.cameraVector[2]) {
-            temp.push(position.z-1);
-          }else{
-            temp.push(position.z)
-          }
-          position.set(Math.floor(temp[0]),Math.floor(temp[1]),Math.floor(temp[2]));
-          requestAnimationFrame(this.moveCameraAnimation);
-          this.renderer.render(this.scene, this.camera);
-          this.stats.update();
-        } else{
-          this.cameraTrack = goalTrack;  //目前camera在goalTrack
-          console.log('stop');
-        }
 
+      if(Math.abs(this.cameraVector[1]-position.y)>1){  //開始移動
+        this.cameraIsMoving =true;
+        this.controls.enabled = false;
+        if(this.cameraVector[1]-position.y<1){  //往下
+          this.camera.position.set(position.x,position.y-1,position.z);
+        }
+        else if(this.cameraVector[1]-position.y>1){  //往上
+          this.camera.position.set(position.x,position.y+1,position.z);    
+        }
+        //console.log(position.x,position.y,position.z);
+        let requestId = requestAnimationFrame(() => { this.moveCameraAnimation(goalTrack); });
+        requestId;
+        this.renderer.render(this.scene, this.camera);
+        this.stats.update();
+        
+      }else{  // 不要動
+        this.camera.position.set(position.x,this.cameraVector[1],position.z); 
+        this.cameraTrack = goalTrack;
+        this.cameraIsMoving =false;
+        this.controls.enabled = true;
+      }
+      console.log(goalTrack ,this.cameraTrack)
     },
 
-    setCamera(x, y, z) {
-      this.camera.position.set(x, y, z);
-    }
-    /* moveTrackGroup(){     
-      if (this.TrackPositionY>0){
-        this.TrackPositionY--;        
-      }else if(this.TrackPositionY ===0){
-        this.Pianokey();
-        this.TrackPositionY=-1;
-      }
-    }*/
   },
   mounted() {
     this.init();
