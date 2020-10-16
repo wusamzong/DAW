@@ -1,16 +1,16 @@
 import * as THREE from "three";
-import { Group } from "three";
+import {Group} from "three";
 var star = {
-  createStars(){
+  createStars(scene){
     let vertices = [];
-    let star = new Group();
-    for(let i=0;i<5000;i++){
-      let x = Math.random *2000 -1000;
-      let y = Math.random *2000 -1000;
-      let z = Math.random *2000 -1000;
+    let stars = new Group();
+    for(let i=0;i<100;i++){
+      let x = Math.random() *2000 -1000;
+      let y = Math.random() *2000 -1000;
+      let z = Math.random() *2000 -1000;
       vertices.push(x,y,z);
     }
-    console.log(vertices);
+    
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3))
     
@@ -35,15 +35,21 @@ var star = {
       particles.rotation.y = Math.random() * 6;
       particles.rotation.z = Math.random() * 6;
       
-      star.add(particles);
+      stars.add(particles);
       // scene.add( particles );
     }
-    return star;
+    scene.add(stars)
+    return stars;
   },
-  // starRender(star){
-  //   const time = Data.now() *0.00005;
-  //   for(let i=0; i<star.length)
-  // }
+  starRender(stars){
+    const time = Date.now() * 0.00005;
+    for(let i=0;i<stars.length;i++){
+      stars[i].rotation.y = time * (i+0.05)*1.3
+      //stars[i].rotation.z = time * (i+0.1)
+    }
+    
+
+  }
 
 }
 export default star
