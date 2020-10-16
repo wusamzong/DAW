@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <div id="info">
+    <UI id="ui"/>
+    <!-- <div id="info">
       <div class="header">
         <button @click="addTrack">add Track</button>
         <button @click="showCameraPosition">Show Camera Position</button>
@@ -16,30 +17,37 @@
           <p>time</p>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import Stats from "three/examples/jsm/libs/stats.module.js";
+//import Stats from "three/examples/jsm/libs/stats.module.js";
+import UI from "../components/UI/index.vue";
+import star from '@/views/js/star'
 //import { Camera } from 'three';
 //import { NURBSCurve } from 'three/examples/jsm/curves/NURBSCurve.js';
 //import { NURBSSurface } from "three/examples/jsm/curves/NURBSSurface.js";
 
 export default {
+  components: {
+    UI
+  },
   data() {
-    var container, stats;
+    var container;
+    //var stats
     var camera, scene, raycaster, render;
     var group;
     var controls;
     var mouse, INTERSECTED;
-
+    var star
     //var extrudeSettings;
     return {
+      
       container,
-      stats,
+      //stats,
       camera,
       scene,
       render,
@@ -48,6 +56,7 @@ export default {
       raycaster,
       mouse,
       INTERSECTED,
+      star,
       TrackGroup: [], //用於push Mesh
       Tracknum: 0,
       //cameraPosition: [],
@@ -66,24 +75,27 @@ export default {
     };
   },
   methods: {
-    init() {
+    init() {    
+      
       this.initContainer();
       this.initScene();
       this.initCamera();
       this.initController();
+      this.initStar();
       //this.Sphere();
       this.setRenderer();
     },
     initContainer() {
       this.container = document.createElement("div");
       document.body.appendChild(this.container);
-      this.stats = new Stats();
-      this.container.appendChild(this.stats.dom);
+      //this.stats = new Stats();
+      //this.container.appendChild(this.stats.dom);
       this.container.style.touchAction = "none";
     },
     initScene() {
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x2b0083);
+      
     },
     initCamera() {
       this.camera = new THREE.PerspectiveCamera(
@@ -105,6 +117,12 @@ export default {
       document.addEventListener("mousemove", this.onDocumentMouseMove, false);
       this.controls.addEventListener("change", this.onControlsChange);
       this.controls.addEventListener("end", this.onControlsEnd);
+    },
+    initStar(){
+      this.star = star.createStars()
+      this.scene.add(this.star);
+      console.log(this.star)
+      
     },
     addsquare(Length, x, y, z, rx, ry, rz, s, opacity, id) {
       var sqLength = Length;
@@ -215,7 +233,7 @@ export default {
         this.select();
       }
       this.renderer.render(this.scene, this.camera);
-      this.stats.update();
+      //this.stats.update();
     },
     select() {
       this.raycaster.setFromCamera(this.mouse, this.camera);    
@@ -312,7 +330,7 @@ body {
   margin: 0 !important;
   font-family: sans-serif;
 }
-#info {
+#ui {
   width: 100vw;
   height: 15vh;
   position: absolute;
