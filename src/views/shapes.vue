@@ -179,19 +179,13 @@ export default {
 
       this.scene.add(this.TrackGroup[this.Tracknum]);
       //console.log(this.TrackGroup[this.Tracknum].cameraPosition);
-      
-      
       this.cameraVector = this.TrackGroup[this.Tracknum].cameraPosition;
-
-      
       this.moveCameraAnimation(this.Tracknum); //把攝影機對像最新創建的音軌
-
       this.Tracknum++;
     },
     addTrack() {
       if (this.Tracknum < 3) {        
         this.Pianokey();
-        
       }
     },
     onWindowResize() {
@@ -224,24 +218,20 @@ export default {
       this.stats.update();
     },
     select() {
-      
       this.raycaster.setFromCamera(this.mouse, this.camera);    
-
       var intersects = [];
-
       intersects = this.raycaster.intersectObjects(this.TrackGroup, true);
       if (intersects.length > 0) {
         //intersects 是持續偵測的物體  INTERSECTED是將偵測到的物件儲存起來，且改變顏色
-        if (intersects != this.INTERSECTED) {
+        if (intersects[0].object != this.INTERSECTED) {
           //如果當前選擇的物體跟剛剛選擇的物體不一樣，則進行下一步
           if (this.INTERSECTED) {
             //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
             this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
           }
           this.INTERSECTED = intersects[0].object;
-          this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
-          this.INTERSECTED.material.color.setHex(0xff377e);
-          
+          this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();  //currentHex
+          this.INTERSECTED.material.color.setHex(0xff377e);       
           document.addEventListener('click',this.onClick);//偵測是否有點擊
         }
       } else {
@@ -260,9 +250,19 @@ export default {
     },
     onClick() {
       let key = this.INTERSECTED
-      console.log(key.index[0],key.index[1]);
+      if(key===null)
+        return;
+      //console.log(key.index[0],key.index[1]);   //index[0]=>第幾個Track ,index[1]=>第幾個key
+      //找到對應的TrackData
+      this.TrackData[key.index[0]][key.index[1]]=!this.TrackData[key.index[0]][key.index[1]]
+      //顏色設置與否
+      if(key.currentHex===0xffff00){  
+        key.currentHex=0xff3dff
+      }else{
+        key.currentHex=0xffff00
+      }
+      //當前應該關注的Track
       this.focusTrack = key.index[0];
-      key.material.color.setHex(0xffff00);
       this.cameraVector = this.TrackGroup[this.focusTrack].cameraPosition;
       this.moveCameraAnimation(this.focusTrack);
     },
@@ -298,7 +298,6 @@ export default {
         this.cameraIsMoving =false;
         this.controls.enabled = true;
       }
-      console.log(goalTrack ,this.cameraTrack)
     },
 
   },
