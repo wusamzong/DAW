@@ -74,11 +74,11 @@ var square ={
 
     return TrackGroup[Tracknum];
 
-    this.scene.add(this.TrackGroup[this.Tracknum]);
+    /*this.scene.add(this.TrackGroup[this.Tracknum]);
     //console.log(this.TrackGroup[this.Tracknum].cameraPosition);
     this.cameraVector = this.TrackGroup[this.Tracknum].cameraPosition;
     this.moveCameraAnimation(this.Tracknum); //把攝影機對像最新創建的音軌
-    this.Tracknum++;
+    this.Tracknum++;*/
   },
 }
 export default square

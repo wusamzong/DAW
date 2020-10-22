@@ -51,7 +51,7 @@ var tone={
     Tone.Transport.bpm.value = 120; //每分鐘120拍
     Tone.Transport.scheduleRepeat(time => {
       
-      index = ++index % 16;
+      index = ++index % 72;
       const i = index;
       for (let j = 0; j < Track.length; j++) {
         //Track[selectedTrack].Data

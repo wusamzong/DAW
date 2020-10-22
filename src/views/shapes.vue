@@ -26,7 +26,7 @@
 
 <script>
 import * as THREE from "three";
-import * as Tone from "tone";
+//import * as Tone from "tone";
 //import Stats from "three/examples/jsm/libs/stats.module.js";
 import UI from "../components/UI/index.vue";
 import SQUARE from "@/views/js/square";
@@ -44,10 +44,10 @@ export default {
   data() {
     var container;
     //var stats
-    var camera, scene, raycaster, renderer;
+    var camera, scene,  renderer;
     var group;
     var controls;
-    var mouse, INTERSECTED;
+    var INTERSECTED;
     var star;
     //var extrudeSettings;
     return {
@@ -88,7 +88,7 @@ export default {
       this.camera = INIT.camera(this.scene);
       this.controls = INIT.controller(this.camera, this.container);
       this.renderer = INIT.renderer(window, this.container);
-      //this.star = STAR.createStars(this.scene)
+      this.star = STAR.createStars(this.scene)
       this.initEventListener();
       this.addTrack();
       TONE.setTransport(this.Track,this.index);
@@ -117,7 +117,7 @@ export default {
     playHandler(){
       this.isPlaying=TONE.playHandler(this.isPlaying)
       if(!this.isPlaying){
-        index = -1;
+        this.index = -1;
       }
     },
     onWindowResize() {
@@ -139,7 +139,7 @@ export default {
       if (!this.cameraIsMoving || !this.orbitChanging) {
         this.select();
       }
-      //STAR.starRender(this.star.children);
+      STAR.starRender(this.star.children);
       this.renderer.render(this.scene, this.camera);
       //this.stats.update();
     },
