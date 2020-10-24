@@ -1,7 +1,8 @@
 <template>
   <div id="app">
-    <UI id="ui" />
-    <div id="info">
+    <topUI id="topUI" />
+    <bottomUI id="bottomUI" />
+    <!-- <div id="info">
       <div class="header">
         <button @click="addTrack">add Track</button>
         <button @click="playHandler">Play/Pause</button>
@@ -20,7 +21,7 @@
           <p>time</p>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -28,7 +29,8 @@
 import * as THREE from "three";
 //import * as Tone from "tone";
 //import Stats from "three/examples/jsm/libs/stats.module.js";
-import UI from "../components/UI/index.vue";
+import topUI from "../components/UI/top.vue";
+import bottomUI from "../components/UI/bottom.vue"
 import SQUARE from "@/views/js/square";
 import STAR from "@/views/js/star";
 import INIT from "@/views/js/init";
@@ -39,7 +41,8 @@ import TONE from "@/views/js/tone";
 
 export default {
   components: {
-    UI,
+    topUI,
+    bottomUI
   },
   data() {
     var container;
@@ -245,13 +248,23 @@ export default {
 body {
   margin: 0 !important;
   font-family: sans-serif;
+  overflow: hidden;
 }
-#ui {
-  width: 100vw;
-  height: 15vh;
+#topUI {
+  top: 50px;
+  left: 50px;
+  height: 6vh;
   position: absolute;
   z-index: 1;
-  margin-left: 25px;
+  /* background: rgba(255,255,255,0.3); */
+}
+#bottomUI {
+  bottom: 50px;
+  right: 50px;
+
+  position: absolute;
+  z-index: 1;
+  /* background: rgba(255,255,255,0.3); */
 }
 #info {
   width: 100vw;

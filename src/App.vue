@@ -25,8 +25,14 @@ export default {
   },
   methods:{
     showPage(){
-      this.showRouter=!this.showRouter
+      var url =window.location.href.split('/').reverse();
+      if(url[0]==='lightOut' ||url[0]==='DAW'||url[0]==='shapes'){
+        this.showRouter =!this.showRouter;
+      }
     }
+  },
+  mounted(){
+    this.showPage();    
   }
 }
 </script>
