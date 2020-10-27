@@ -1,6 +1,6 @@
 <template>
   <div id="ui" class="ui">
-    <template v-if="!editTrack">
+    <template v-if="!sceneStatus">
       <img class="add" src="../../assets/icon/add.png" height="50px" alt="add.png" />
       <!--play / pause-->
       <img src="../../assets/icon/play.png" height="50px" alt="play.png" />
@@ -9,14 +9,14 @@
       <div class="text">
         <p>{{bpm}} BPM</p>
         <p>{{time}}</p>
-        <p @click="editTrack=!editTrack">change</p>
+        <p @click="$emit('sceneChange',1)">change</p>
       </div>
     </template>
 
     <template v-else>
       <img
         class="back"
-        @click="editTrack=!editTrack"
+        @click="$emit('sceneChange',0)"
         src="../../assets/icon/back.png"
         height="50px"
         alt="back.png"
@@ -33,7 +33,7 @@
         <p>LFO</p>
         <p>ADSR</p>
         <p>Filter</p>
-        <p @click="editTrack=!editTrack">change</p>
+        <p @click="$emit('sceneChange',0)">change</p>
       </div>
     </template>
   </div>
@@ -49,13 +49,15 @@ export default {
     };
   },
   props: {
-    // boolean: {
-    //   type: Object,
-    //   required: true
-    // },
+    sceneStatus: {
+      type: Number,
+      required: true
+    },
   },
 
-  methods: {},
+  methods: {
+
+  },
   mounted() {}
 };
 </script>

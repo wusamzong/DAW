@@ -1,5 +1,41 @@
 import * as THREE from 'three';
 var square ={
+  addSimplifySquare(x,y,z,SimplifyTrackGroup){
+    var twoPi = Math.PI *2
+    var data = {
+      radiusTop: 31,
+      radiusBottom: 31,
+      height: 7,
+      radialSegments: 36,
+      heightSegments: 1,
+      openEnded: true,
+      thetaStart: twoPi/12+0.06,
+      thetaLength: twoPi*2/3
+    };
+    var geometry = new THREE.CylinderGeometry(
+      data.radiusTop,
+      data.radiusBottom,
+      data.height,
+      data.radialSegments,
+      data.heightSegments,
+      data.openEnded,
+      data.thetaStart,
+      data.thetaLength
+    )
+    var material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide
+    })
+
+    var mesh = new THREE.Mesh(geometry,material)
+    mesh.position.set(x+0,y+0.4,z+0)
+    SimplifyTrackGroup.add(mesh);
+    SimplifyTrackGroup.name = 'SimplifyTrackGroup';
+    return SimplifyTrackGroup;
+
+  },
   addsquare(Length, x, y, z, rx, ry, rz, s, opacity,Tracknum ,id) {
     var sqLength = Length;
     var squareShape = new THREE.Shape()
@@ -26,7 +62,7 @@ var square ={
     return mesh;
     //this.scene.add(mesh);
   },
-  Pianokey(TrackGroup,Tracknum,camera) {
+  Pianokey(TrackGroup,Tracknum) {
     var R = 30;
     var Length;
     var angle = 0;
@@ -67,18 +103,13 @@ var square ={
     }
 
     TrackGroup[Tracknum].cameraPosition = [
-      camera.position.x,
+      0,
       Tracknum * -8,
-      camera.position.z,
+      0,
     ];
-
+    TrackGroup[Tracknum].name='TrackGroup'
     return TrackGroup[Tracknum];
-
-    /*this.scene.add(this.TrackGroup[this.Tracknum]);
-    //console.log(this.TrackGroup[this.Tracknum].cameraPosition);
-    this.cameraVector = this.TrackGroup[this.Tracknum].cameraPosition;
-    this.moveCameraAnimation(this.Tracknum); //把攝影機對像最新創建的音軌
-    this.Tracknum++;*/
   },
+
 }
 export default square

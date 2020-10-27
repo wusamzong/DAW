@@ -1,5 +1,7 @@
 import * as Tone from "tone";
 var tone={
+  index: -1,
+  Track: [],
   addTrackHandler(Tracknum){
     var Track=({
       ID: Tracknum,
@@ -21,15 +23,18 @@ var tone={
         volume: 2
       }).toMaster(),
     })
-    return Track;
+    this.Track.push(Track);
+    return;
   },
   getEmptyArray(length=72){
     return Array.from({length},()=>0)
   },
-  editTrackHandler(TrackData,key){ //這裡的key代表的是某一個Track的第幾個
+  editTrackHandler(keys){ //這裡的key代表的是某一個Track的第幾個
     //第幾個
      //第幾行
-    console.log(key)
+    
+    var TrackData = this.Track[keys.index[0]].Data
+    var key = keys.index[1]
     TrackData[Math.floor(key/72)][key%72]=!TrackData[Math.floor(key/72)][key%72];
   },
   playHandler(isPlaying){
@@ -47,16 +52,16 @@ var tone={
     }
     return !isPlaying;
   },
-  setTransport(Track, index) {
+  setTransport() {
     Tone.Transport.bpm.value = 120; //每分鐘120拍
     Tone.Transport.scheduleRepeat(time => {
       
-      index = ++index % 72;
-      const i = index;
-      for (let j = 0; j < Track.length; j++) {
+      this.index = ++this.index % 72;
+      const i = this.index;
+      for (let j = 0; j < this.Track.length; j++) {
         //Track[selectedTrack].Data
-        let lead = Track[j].Data;
-        let poly = Track[j].poly;
+        let lead = this.Track[j].Data;
+        let poly = this.Track[j].poly;
         if (lead[0][i]) poly.triggerAttackRelease("C4", "16n", time);
         if (lead[1][i]) poly.triggerAttackRelease("D4", "16n", time);
         if (lead[2][i]) poly.triggerAttackRelease("E4", "16n", time);
