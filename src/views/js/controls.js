@@ -9,6 +9,7 @@ var controls ={
     controls.update();
     controls.addEventListener("change",()=>{this.onControlsChange(controls)});
     controls.addEventListener("end",()=>{this.onControlsEnd(controls)});
+    controls.keyPanSpeed = 150;
     this.controls = controls;
   },
   onControlsChange() {

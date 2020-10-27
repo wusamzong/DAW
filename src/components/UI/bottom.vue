@@ -5,8 +5,8 @@
       <p v-for="index in 10" :key="index">{{index}}</p>
     </div>
     <img src="../../assets/icon/right.png" height="30px" alt="right.png" />
-    <img class="zoom" src="../../assets/icon/zoomIn.png" height="30px" alt="zoomIn.png" />
-    <img class="zoom" src="../../assets/icon/zoomOut.png" height="30px" alt="zoomOut.png" />
+    <img @click="$emit('zoom',0)" class="zoom" src="../../assets/icon/zoomIn.png" height="30px" alt="zoomIn.png" />
+    <img @click="$emit('zoom',1)" class="zoom" src="../../assets/icon/zoomOut.png" height="30px" alt="zoomOut.png" />
   </div>
 </template>
 <script>

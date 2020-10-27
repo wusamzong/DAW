@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <topUI id="topUI" :sceneStatus="goalStatus" @sceneChange="sceneChange"/>
-    <bottomUI id="bottomUI" />
+    <topUI id="topUI" :sceneStatus="goalStatus" @sceneChange="sceneChange" />
+    <bottomUI id="bottomUI" @zoom="zoom"/>
   </div>
 </template>
 <script>
@@ -16,6 +16,7 @@ import CAMERA from "@/views/js/camera";
 import SELECT from "@/views/js/select";
 import SCENE from "@/views/js/scene";
 import CONTROLS from "@/views/js/controls";
+import VECTOR from "@/views/js/vector";
 //import * as Tone from "tone";
 //import Stats from "three/examples/jsm/libs/stats.module.js";
 //import { Camera } from 'three';
@@ -64,6 +65,7 @@ export default {
       INIT.onWindowResize(window, CAMERA.camera, this.renderer);
       
       this.star = STAR.createStars(SCENE.scene);
+      VECTOR.addVector();
       this.addTrack();
       SCENE.sceneChange(0);
       
@@ -104,11 +106,17 @@ export default {
       STAR.starRender(this.star.children);
       this.renderer.render(SCENE.scene, CAMERA.camera);
       //this.stats.update();
+
     },
     sceneChange(num){
-      
       SCENE.sceneChange(num);
-      console.log(num)
+    },
+    zoom(boolean){
+      if(boolean){ //out
+        CAMERA.zoomOut(this.renderer);
+      }else{  //in
+        CAMERA.zoomIn(this.renderer);
+      }
     }
 
 

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import CONTROLS from "@/views/js/controls";
 import SCENE from "@/views/js/scene";
+
 var camera = {
   camera,
   cameraVector: 0,
@@ -13,7 +14,7 @@ var camera = {
       1,
       1000
     );
-    this.camera.position.set(0, 0, 0); //(x,y,z)
+    this.camera.position.set(0,0,0); //(x,y,z)
     this.camera.rotation.set(0,0,0);
     SCENE.scene.add(this.camera);
   },
@@ -50,5 +51,13 @@ var camera = {
       CONTROLS.controls.enabled = true;
     }
   },
+  zoomIn(){
+    this.camera.zoom+=0.2;
+    this.camera.updateProjectionMatrix();
+  },
+  zoomOut(){
+    this.camera.zoom-=0.2;
+    this.camera.updateProjectionMatrix();
+  }
 }
 export default camera
