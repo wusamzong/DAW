@@ -2,6 +2,7 @@ import * as Tone from "tone";
 var tone={
   index: -1,
   Track: [],
+  focusTrack: -1,
   addTrackHandler(Tracknum){
     var Track=({
       ID: Tracknum,

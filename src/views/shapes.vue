@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <topUI id="topUI" :sceneStatus="goalStatus" @sceneChange="sceneChange" />
+    <topUI id="topUI" :sceneStatus="goalStatus" :isPlaying="isPlaying" @sceneChange="sceneChange" @playHandler="playHandler" @addTrackHandler="addTrack"/>
     <bottomUI id="bottomUI" @zoom="zoom"/>
   </div>
 </template>
@@ -46,8 +46,7 @@ export default {
       star,
       TrackGroup: [], //用於push Mesh
       SimplifyTrackGroup: new THREE.Group(),
-      Tracknum: 0,
-      focusTrack: -1,
+      Tracknum: 0, 
       isPlaying: false
       //stats,
     };
@@ -77,18 +76,22 @@ export default {
       if (this.Tracknum < 3) {
         SCENE.scene.add(SQUARE.Pianokey(this.TrackGroup, this.Tracknum));
         SCENE.scene.add(
-          SQUARE.addSimplifySquare(0, 0, 0, this.SimplifyTrackGroup)
+          SQUARE.addSimplifySquare(this.SimplifyTrackGroup, this.Tracknum)
         ); //加入簡易的Track
+        TONE.focusTrack=this.Tracknum;
+        
+
         this.selectGroup=[this.SimplifyTrackGroup, this.TrackGroup]
         TONE.addTrackHandler(this.Tracknum); //加入聲音資料
-
+        
         CAMERA.cameraVector = this.TrackGroup[this.Tracknum].cameraPosition; //傳遞告訴camera要去某個Track的具體位置(Vector)
         CAMERA.moveCameraAnimation(
-          SCENE.scene,
           this.renderer,
-          this.focusTrack
+          TONE.focusTrack
         ); //把攝影機對像最新創建的音軌
         this.Tracknum++;
+        
+        SCENE.sceneChange(SCENE.sceneStatus)
       }
     },
     playHandler() {

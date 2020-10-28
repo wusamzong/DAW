@@ -1,15 +1,14 @@
 <template>
   <div id="ui" class="ui">
     <template v-if="!sceneStatus">
-      <img class="add" src="../../assets/icon/add.png" height="50px" alt="add.png" />
+      <img class="add" @click="addTrackHandler" src="../../assets/icon/add.png" height="50px" alt="add.png" />
       <!--play / pause-->
-      <img src="../../assets/icon/play.png" height="50px" alt="play.png" />
-      <img src="../../assets/icon/pause.png" height="50px" alt="pause.png" />
+      <img v-if="!isPlaying" @click="playHandler" src="../../assets/icon/play.png" height="50px" alt="play.png" />
+      <img v-else @click="playHandler" src="../../assets/icon/pause.png" height="50px" alt="pause.png" />
       <img src="../../assets/icon/loop.png" height="50px" alt="loop.png" />
       <div class="text">
         <p>{{bpm}} BPM</p>
         <p>{{time}}</p>
-        <p @click="$emit('sceneChange',1)">change</p>
       </div>
     </template>
 
@@ -21,10 +20,10 @@
         height="50px"
         alt="back.png"
       />
-      <img class="add" src="../../assets/icon/add.png" height="50px" alt="add.png" />
+      <img class="add" @click="addTrackHandler" src="../../assets/icon/add.png" height="50px" alt="add.png" />
       <!--play / pause-->
-      <img src="../../assets/icon/play.png" height="50px" alt="play.png" />
-      <img src="../../assets/icon/pause.png" height="50px" alt="pause.png" />
+      <img v-if="!isPlaying" @click="playHandler" src="../../assets/icon/play.png" height="50px" alt="play.png" />
+      <img v-else @click="playHandler" src="../../assets/icon/pause.png" height="50px" alt="pause.png" />
       <div class="text">
         <p>{{bpm}} BPM</p>
         <p>{{time}}</p>
@@ -33,7 +32,7 @@
         <p>LFO</p>
         <p>ADSR</p>
         <p>Filter</p>
-        <p @click="$emit('sceneChange',0)">change</p>
+
       </div>
     </template>
   </div>
@@ -49,14 +48,24 @@ export default {
     };
   },
   props: {
+    isPlaying:{
+      type: Boolean,
+      required: true
+    },
     sceneStatus: {
       type: Number,
       required: true
     },
+
   },
 
   methods: {
-
+    playHandler(){
+      this.$emit('playHandler')
+    },
+    addTrackHandler(){
+      this.$emit('addTrackHandler')
+    }
   },
   mounted() {}
 };

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import TONE from "@/views/js/tone";
 var scene ={
   scene: new THREE.Scene(),
   sceneStatus: 0,
@@ -17,19 +18,30 @@ var scene ={
   },
   bigScene() {
     var SimplifyTrackGroup = this.scene.getObjectByName('SimplifyTrackGroup');
-    var TrackGroup = this.scene.getObjectByName('TrackGroup');
-    console.log(SimplifyTrackGroup)
-    console.log(TrackGroup)
     SimplifyTrackGroup.visible = true;
-    TrackGroup.visible = false;
+
+    this.scene.children.forEach(element =>{
+      let name=element.name.split(' ')[0]
+      if(name==='TrackGroup')
+        element.visible = false;
+    })
   },
   smallScene() {
     var SimplifyTrackGroup = this.scene.getObjectByName('SimplifyTrackGroup');
-    var TrackGroup = this.scene.getObjectByName('TrackGroup');
-    console.log(SimplifyTrackGroup)
-    console.log(TrackGroup)
     SimplifyTrackGroup.visible = false;
-    TrackGroup.visible = true;
+
+    this.scene.children.forEach(element =>{
+      let name=element.name.split(' ')
+      let groupName=name[0]
+      let index=Number(name[1])
+      console.log(groupName,index,TONE.focusTrack)
+      if(groupName==='TrackGroup'){
+        if(index === TONE.focusTrack){
+          element.visible = true;
+        }
+      }
+        
+    })
   },
 }
 export default scene;

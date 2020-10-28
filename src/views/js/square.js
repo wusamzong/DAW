@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 var square ={
-  addSimplifySquare(x,y,z,SimplifyTrackGroup){
+  addSimplifySquare(SimplifyTrackGroup, Tracknum){
     var twoPi = Math.PI *2
     var data = {
       radiusTop: 31,
@@ -9,7 +9,7 @@ var square ={
       radialSegments: 36,
       heightSegments: 1,
       openEnded: true,
-      thetaStart: twoPi/12+0.06,
+      thetaStart: twoPi/12,
       thetaLength: twoPi*2/3
     };
     var geometry = new THREE.CylinderGeometry(
@@ -30,13 +30,14 @@ var square ={
     })
 
     var mesh = new THREE.Mesh(geometry,material)
-    mesh.position.set(x+0,y+0.4,z+0)
+    mesh.position.set(0,Tracknum*-8+0.4,0)
+    mesh.rotation.set(0,Math.PI/6,0)
     SimplifyTrackGroup.add(mesh);
     SimplifyTrackGroup.name = 'SimplifyTrackGroup';
     return SimplifyTrackGroup;
 
   },
-  addsquare(Length, x, y, z, rx, ry, rz, s, opacity,Tracknum ,id) {
+  addsquare(Length, x, y, z, rx, ry, rz, opacity,Tracknum ,id) {
     var sqLength = Length;
     var squareShape = new THREE.Shape()
       .moveTo(0, 0)
@@ -57,7 +58,6 @@ var square ={
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     mesh.rotation.set(rx, ry, rz);
-    mesh.scale.set(s, s, s);
     mesh.index = [Tracknum, id]; //在mesh裡面插入Track和在這個Track的id
     return mesh;
     //this.scene.add(mesh);
@@ -91,7 +91,6 @@ var square ={
             0,
             i * Math.PI + (Math.PI * 3) / 2,
             0,
-            1,
             Math.sin(Math.PI * Gradient) * 0.8 + 0.1,
             Tracknum,
             id++
@@ -101,13 +100,14 @@ var square ={
         angle += 1 / 54;
       }
     }
-
+    TrackGroup[Tracknum].rotation.set(0,Math.PI/6,0)
+    console.log()
     TrackGroup[Tracknum].cameraPosition = [
       0,
       Tracknum * -8,
       0,
     ];
-    TrackGroup[Tracknum].name='TrackGroup'
+    TrackGroup[Tracknum].name='TrackGroup '+Tracknum;
     return TrackGroup[Tracknum];
   },
 
