@@ -8,15 +8,20 @@
 import * as THREE from "three";
 import topUI from "../components/UI/top.vue";
 import bottomUI from "../components/UI/bottom.vue";
-import SQUARE from "@/views/js/square";
-import STAR from "@/views/js/star";
+
+import SQUARE from "@/views/js/mesh/square";
+import STAR from "@/views/js/mesh/star";
+import VECTOR from "@/views/js/mesh/vector";
+
+import { animateInterface,StarAnimate,CameraAnimate } from "@/views/js/animation";
+
 import INIT from "@/views/js/init";
 import TONE from "@/views/js/tone";
 import CAMERA from "@/views/js/camera";
 import SELECT from "@/views/js/select";
 import SCENE from "@/views/js/scene";
 import CONTROLS from "@/views/js/controls";
-import VECTOR from "@/views/js/vector";
+import RENDERER from "@/views/js/renderer"
 //import * as Tone from "tone";
 //import Stats from "three/examples/jsm/libs/stats.module.js";
 //import { Camera } from 'three';
@@ -54,24 +59,29 @@ export default {
   methods: {
     init() {
       this.container = INIT.container(document);
-      this.renderer = INIT.renderer(window, this.container);
       
+      RENDERER.init(window, this.container);
       SCENE.init();
       CAMERA.init(SCENE.scene);
       SELECT.init(document);
       CONTROLS.init(CAMERA.camera, this.container)
       //this.controls = INIT.controller(CAMERA.camera, this.container);
-      INIT.onWindowResize(window, CAMERA.camera, this.renderer);
+      INIT.onWindowResize(window, CAMERA.camera, RENDERER.renderer);
       
-      this.star = STAR.createStars(SCENE.scene);
+      STAR.createStars(SCENE.scene);
       VECTOR.addVector();
       this.addTrack();
       SCENE.sceneChange(0);
-      
       TONE.setTransport();
-       //偵測是否有點擊
-    },
 
+      
+      
+      //偵測是否有點擊
+    },
+    /*starAnimate(){
+      var TEST = new Star(50,this.star,'rotation');
+      TEST.animate();
+    },*/
     addTrack() {
       if (this.Tracknum < 3) {
         SCENE.scene.add(SQUARE.Pianokey(this.TrackGroup, this.Tracknum));
@@ -86,7 +96,7 @@ export default {
         
         CAMERA.cameraVector = this.TrackGroup[this.Tracknum].cameraPosition; //傳遞告訴camera要去某個Track的具體位置(Vector)
         CAMERA.moveCameraAnimation(
-          this.renderer,
+          RENDERER.renderer,
           TONE.focusTrack
         ); //把攝影機對像最新創建的音軌
         this.Tracknum++;
@@ -100,25 +110,25 @@ export default {
         this.index = -1;
       }
     },
-    animate() {
-      requestAnimationFrame(this.animate);
-      this.goalStatus=SCENE.sceneStatus;
-      if (!CAMERA.cameraIsMoving || !CONTROLS.controls.orbitChanging) {
-        SELECT.raycasterAnimate(CAMERA.camera,this.selectGroup)
-      }
-      STAR.starRender(this.star.children);
-      this.renderer.render(SCENE.scene, CAMERA.camera);
-      //this.stats.update();
+    // animate() {
+    //   requestAnimationFrame(this.animate);
+    //   //this.starAnimate();
+    //   this.goalStatus=SCENE.sceneStatus;
+    //   if (!CAMERA.cameraIsMoving || !CONTROLS.controls.orbitChanging) {
+    //     SELECT.raycasterAnimate(CAMERA.camera,this.selectGroup)
+    //   }
+    //   RENDERER.renderer.render(SCENE.scene, CAMERA.camera);
+    //   //this.stats.update();
 
-    },
+    // },
     sceneChange(num){
       SCENE.sceneChange(num);
     },
     zoom(boolean){
       if(boolean){ //out
-        CAMERA.zoomOut(this.renderer);
+        CAMERA.zoomOut();
       }else{  //in
-        CAMERA.zoomIn(this.renderer);
+        CAMERA.zoomIn();
       }
     }
 
@@ -128,7 +138,7 @@ export default {
   },
   mounted() {
     this.init();
-    this.animate();
+    animateInterface();
   }
 };
 </script>

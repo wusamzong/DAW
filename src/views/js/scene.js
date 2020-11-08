@@ -34,7 +34,6 @@ var scene ={
       let name=element.name.split(' ')
       let groupName=name[0]
       let index=Number(name[1])
-      console.log(groupName,index,TONE.focusTrack)
       if(groupName==='TrackGroup'){
         if(index === TONE.focusTrack){
           element.visible = true;

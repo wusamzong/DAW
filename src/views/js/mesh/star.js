@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import {Group} from "three";
 var star = {
+  stars: new Group(),
   createStars(scene){
     let vertices = [];
-    let stars = new Group();
+    
     for(let i=0;i<100;i++){
       let x = Math.random() *2000 -1000;
       let y = Math.random() *2000 -1000;
@@ -35,21 +36,18 @@ var star = {
       particles.rotation.y = Math.random() * 6;
       particles.rotation.z = Math.random() * 6;
       
-      stars.add(particles);
+      this.stars.add(particles);
       // scene.add( particles );
     }
-    scene.add(stars)
-    return stars;
+    scene.add(this.stars)
   },
-  starRender(stars){
-    const time = Date.now() * 0.00005;
-    for(let i=0;i<stars.length;i++){
-      stars[i].rotation.y = time * (i+0.05)*1.3
-      //stars[i].rotation.z = time * (i+0.1)
-    }
-    
-
-  }
+  // starRender(stars){
+  //   const time = Date.now() * 0.00005;
+  //   for(let i=0;i<stars.length;i++){
+  //     stars[i].rotation.y = time * (i+0.05)*1.3
+  //     //stars[i].rotation.z = time * (i+0.1)
+  //   }
+  // }
 
 }
 export default star

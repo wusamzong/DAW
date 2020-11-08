@@ -68,10 +68,7 @@ var square ={
     var angle = 0;
     var id = 0;
     var barNum = 72;
-
     TrackGroup[Tracknum] = new THREE.Group();
-    
-    
     for (let j = -3; j < 4; j++) {
       R = 30 * Math.cos(((Math.PI * 1) / 32) * j);
       Length = (Math.PI * R) / 60;
