@@ -1,46 +1,44 @@
 import * as THREE from "three";
-import TONE from "@/views/js/tone";
+import {trackModel} from '@/views/js/model/track'
+let simpleTrack = trackModel.UI.SimplifyTrackGroup;
+let completeTrack = trackModel.UI.TrackGroup;
 var scene ={
   scene: new THREE.Scene(),
   sceneStatus: 0,
+  focusing: 0, //正在關注的Track id
   init(){
     this.scene.fog = new THREE.FogExp2( 0x3D85C6, 0.005 );
     this.scene.background = new THREE.Color(0x4C1130);
   },
   sceneChange(goalStatus) {
     if (goalStatus === 0) {
-      this.bigScene();
+      bigScene();
       this.sceneStatus = 0;
     } else {
-      this.smallScene();
+      smallScene();
       this.sceneStatus = 1;
     }
   },
-  bigScene() {
-    var SimplifyTrackGroup = this.scene.getObjectByName('SimplifyTrackGroup');
-    SimplifyTrackGroup.visible = true;
-
-    this.scene.children.forEach(element =>{
-      let name=element.name.split(' ')[0]
-      if(name==='TrackGroup')
+  focusTrack(track){ //點擊的track
+    this.focusing = track;
+    completeTrack.forEach(element => {
+      if(element.name.split(' ')[1] != track)
         element.visible = false;
-    })
-  },
-  smallScene() {
-    var SimplifyTrackGroup = this.scene.getObjectByName('SimplifyTrackGroup');
-    SimplifyTrackGroup.visible = false;
+    });
+  }
+}
 
-    this.scene.children.forEach(element =>{
-      let name=element.name.split(' ')
-      let groupName=name[0]
-      let index=Number(name[1])
-      if(groupName==='TrackGroup'){
-        if(index === TONE.focusTrack){
-          element.visible = true;
-        }
-      }
-        
-    })
-  },
+
+function bigScene() {
+  simpleTrack.visible = true;
+  completeTrack.forEach(element => {
+    element.visible = false;
+  });
+}
+function smallScene() {
+  simpleTrack.visible = false;
+  completeTrack.forEach(element => {
+    element.visible = true;
+  });
 }
 export default scene;

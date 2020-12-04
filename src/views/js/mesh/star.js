@@ -1,8 +1,9 @@
 import * as THREE from "three";
+import SCENE from "@/views/js/scene";
 import {Group} from "three";
 var star = {
   stars: new Group(),
-  createStars(scene){
+  createStars(){
     let vertices = [];
     
     for(let i=0;i<100;i++){
@@ -37,9 +38,9 @@ var star = {
       particles.rotation.z = Math.random() * 6;
       
       this.stars.add(particles);
-      // scene.add( particles );
+      // SCENE.scene.add( particles );
     }
-    scene.add(this.stars)
+    SCENE.scene.add(this.stars)
   },
   // starRender(stars){
   //   const time = Date.now() * 0.00005;

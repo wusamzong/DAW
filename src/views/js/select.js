@@ -1,12 +1,18 @@
 import * as THREE from 'three';
 import TONE from "@/views/js/tone";
 import SCENE from "@/views/js/scene";
-
+import CAMERA from "@/views/js/camera";
+import {cameraAnimation} from "@/views/js/animation"
+import {trackModel} from '@/views/js/model/track'
+let intersects;
+let INTERSECTED=undefined;
+let hover= false; //當前要raycaster的Group
+let simpleTrack = trackModel.UI.SimplifyTrackGroup;
+let completeTrack = trackModel.UI.TrackGroup;
+let focusTrackID = -1;
 var select = {
   raycaster: new THREE.Raycaster(),
   mouse: new THREE.Vector2(),
-  which: -1, //當前要raycaster的Group
-  INTERSECTED:undefined,
   init(document){
     document.addEventListener("mousemove",(event)=>{
       event.preventDefault();
@@ -14,91 +20,93 @@ var select = {
       this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     }, false);
     document.addEventListener("click", () => {
-      this.onClick(this.which);
+      onClick();
     });
   },
-  raycasterAnimate(camera,selectGroup){
-    this.raycaster.setFromCamera(this.mouse, camera);
-    var intersects = []; 
-     
-    if (SCENE.sceneStatus === 0) { //大場景  
-      intersects = this.raycaster.intersectObjects(selectGroup[0].children,true);
-    } else if (SCENE.sceneStatus === 1) { //小場景
-      intersects = this.raycaster.intersectObjects(selectGroup[1][0].children, true);
-    }
-     
-    if (intersects.length > 0) {
-      let parent = intersects[0].object.parent;
-      if (parent === selectGroup[0]) {
-        this.which = 0;
-      }
-      if (parent === selectGroup[1][0]) {
-        this.which = 1;
-        this.hoverKey(intersects);
-      }
-    } else {
-      if (this.which === 0) {
-        this.which = -1;
-      } else if (this.which === 1) {
-        this.leaveKey();
-        this.which = -1;
-      }
-    }
+  selectController(){
+    this.raycaster.setFromCamera(this.mouse, CAMERA.camera);
+    setIntersects()
   },
-  hoverKey(intersects) {
-    if (intersects[0].object != this.INTERSECTED) {
-      //如果當前選擇的物體跟剛剛選擇的物體不一樣，則進行下一步
-      if (this.INTERSECTED) {
-        //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
-        this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
-      }
-      
-      this.INTERSECTED = intersects[0].object;
-      this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex(); //currentHex
-      this.INTERSECTED.material.color.setHex(0xff377e);
-    }
-  },
-  leaveKey() {
-    if (this.INTERSECTED) {
-      //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
-      this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
-    }
-    this.INTERSECTED = null;
-  },
-  onClick() {
-    if (this.which === 1) {
-      this.clickKey();
-    } else if (this.which === 0) {
-      this.clickSimplifyTrack();
-    }
-  },
-  clickKey() {
-    let key = this.INTERSECTED;
-    if (key === null) return;
-    //console.log(key.index[0],key.index[1]);   //index[0]=>第幾個Track ,index[1]=>第幾個key
-    //找到對應的TrackData
-    //this.TrackData[key.index[0]][key.index[1]] = !this.TrackData[key.index[0]][key.index[1]];
-    TONE.editTrackHandler(key);
-    //顏色設置與否
-    if (key.currentHex === 0xffff00) {
-      key.currentHex = 0xff3dff;
-    } else {
-      key.currentHex = 0xffff00;
-    }
-    //當前應該關注的Track
-    /*this.focusTrack = key.index[0];
-    CAMERA.cameraVector = this.TrackGroup[this.focusTrack].cameraPosition;
-
-    this.controls = CAMERA.moveCameraAnimation(
-      SCENE.scene,
-      this.renderer,
-      this.controls,
-      this.focusTrack
-    );*/
-  },
-  clickSimplifyTrack() {
-    SCENE.sceneChange(1);
-  }
-
 }
+function setIntersects(){ //依據目前的場景來設置intersects
+  if (SCENE.sceneStatus === 0) { //大場景
+    intersects = select.raycaster.intersectObjects(simpleTrack.children,true);
+    hoverTrack();
+  } else if (SCENE.sceneStatus === 1) { //小場景
+    intersects = select.raycaster.intersectObjects(completeTrack[focusTrackID].children, true);
+    hoverKey();
+  }
+}
+function hoverTrack(){ //大場景時，我們辨識滑鼠是否有在Track上
+  if (intersects.length > 0) {
+    let parent = intersects[0].object.parent;
+    if (parent === simpleTrack) {
+      hover = true;
+    }
+  } else {
+    hover = false
+  }
+}
+function hoverKey(){ //大場景時，我們辨識滑鼠是否有在Key上，以及是在哪個key上
+  if (intersects.length > 0) {
+    let parent = intersects[0].object.parent;
+    if (parent === completeTrack[focusTrackID]) {
+      hover = true;
+      if (intersects[0].object != INTERSECTED) {
+        //如果當前選擇的物體跟剛剛選擇的物體不一樣，則進行下一步
+        if (INTERSECTED) {
+          //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
+          INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+        }
+        
+        INTERSECTED = intersects[0].object;
+        INTERSECTED.currentHex = INTERSECTED.material.color.getHex(); //currentHex
+        INTERSECTED.material.color.setHex(0xff377e);
+      }
+    }
+  } else {
+    hover = false;
+    if (INTERSECTED) {
+      //如果剛剛有取得物件，那就先把剛剛取得的物件顏色先修改回來
+      INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+    }
+    INTERSECTED = null;
+  }
+}
+
+function onClick() {  //依據目前的場景來control
+  if (hover === true) {
+    if(SCENE.sceneStatus === 0)
+      clickTrack();
+    else if(SCENE.sceneStatus ===1)
+      clickKey();
+  } else if (hover === false) {
+    return;
+  }
+}
+function clickTrack() {
+  SCENE.sceneChange(1);
+  focusTrackID = intersects[0].object.name
+  SCENE.focusTrack(focusTrackID)
+  cameraAnimation(focusTrackID)
+}
+function clickKey() {
+  let key = INTERSECTED;
+  if (key === null) return;
+  console.log(key)
+  //console.log(key.index[0],key.index[1]);   //index[0]=>第幾個Track ,index[1]=>第幾個key
+  //找到對應的TrackData
+  //this.TrackData[key.index[0]][key.index[1]] = !this.TrackData[key.index[0]][key.index[1]];
+  TONE.editTrackHandler(key);
+  //顏色設置與否
+  if (key.currentHex === 0xffff00) {
+    key.currentHex = 0xff3dff;
+  } else {
+    key.currentHex = 0xffff00;
+  }
+  //當前應該關注的Track
+}
+
+
+
 export default select;
